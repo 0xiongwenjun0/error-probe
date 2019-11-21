@@ -1,5 +1,4 @@
-import explorer from './frontend-sniper-explorer';
-// let submitUrl='https://frontend-sniper.callmesoul.cn/api/errors';
+import explorer from './firEye-probe';
 let submitUrl='http://127.0.0.1:7001/api/errors';
 explorer.start({
     submitUrl:submitUrl,
@@ -18,10 +17,8 @@ explorer.start({
             method: "POST",
             headers: {
                 'Content-Type': 'application/json',
-                // 'appId':'c27de230-4072-11e9-be0e-bf7018a8de0c',//使用 frontend-sniper时
-                // 'appScrect':'c27de231-4072-11e9-be0e-bf7018a8de0c' //使用 frontend-sniper时
-                'appId':'f9ed9f90-3b21-11e9-8bb4-156d2c6ff87c',//使用 frontend-sniper时
-                'appScrect':'f9ed9f91-3b21-11e9-8bb4-156d2c6ff87c' //使用 frontend-sniper时
+                'appId':'7d21d390-0aa2-11ea-b529-ebb1675f5f6f',
+                'appScrect':'7d21faa0-0aa2-11ea-b529-ebb1675f5f6f'
             },
             body:JSON.stringify(error),
         }).then(res => {

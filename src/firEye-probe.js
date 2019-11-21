@@ -160,7 +160,7 @@ class explorer{
                 .then(res => {
                     if (!res.ok) { // True if status is HTTP 2xx
                         if(res.url===config.submitUrl){
-                            console.log('提交错误报错，请检查后台frontend-sniper-server是否运行正常');
+                            console.log('提交错误报错，请检查后台firEye-server是否运行正常');
                         }else{
                             config.sendError({
                                 title: arguments[0],
@@ -207,7 +207,7 @@ class explorer{
         let _handleEvent = function (event) {
             if (event && event.currentTarget && event.currentTarget.status !== 200) {
                 if(event.target.responseURL===config.submitUrl){
-                    console.log('提交错误报错，请检查后台frontend-sniper-server是否运行正常');
+                    console.log('提交错误报错，请检查后台firEye-server是否运行正常');
                 }else{
                     config.sendError({
                         title: event.target.responseURL,

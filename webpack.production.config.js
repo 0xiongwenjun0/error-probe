@@ -1,8 +1,8 @@
 module.exports = {
-    entry:  __dirname + "/src/frontend-sniper-explorer.js",//已多次提及的唯一入口文件
+    entry:  __dirname + "/src/firEye-probe.js",//已多次提及的唯一入口文件
     output: {
         path: __dirname + "/lib",//打包后的文件存放的地方
-        filename: "frontend-sniper-explorer.js"//打包后输出文件的文件名
+        filename: "firEye-probe.js"//打包后输出文件的文件名
     },
     module: {
         rules: [

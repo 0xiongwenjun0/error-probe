@@ -1,6 +1,10 @@
 {
   "name": "firEye-probe",
+<<<<<<< HEAD
   "version": "0.0.2",
+=======
+  "version": "1.0.0",
+>>>>>>> 8b2533c0d26b8062b6d2cd32283236b587d295cf
   "description": "前端错误探针",
   "main": "lib/firEye-probe.js",
   "scripts": {
@@ -12,8 +16,13 @@
     "type": "git",
     "url": ""
   },
+<<<<<<< HEAD
   "author": "CallMeSoul",
   "license": "MIT",
+=======
+  "author": "",
+  "license": "",
+>>>>>>> 8b2533c0d26b8062b6d2cd32283236b587d295cf
   "devDependencies": {
     "babel-core": "^6.26.3",
     "babel-loader": "^7.1.5",

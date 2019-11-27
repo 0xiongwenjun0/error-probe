@@ -144,6 +144,7 @@ class explorer {
             this.handleWindowError(this._window, this.config);
         }
         if (this.config.jsError) {
+            // https://developer.mozilla.org/zh-CN/docs/Web/Events/unhandledrejection
             this.handleRejectPromise(this._window, this.config);
         }
         if (this.config.resourceError && addEventListener) {
@@ -242,7 +243,6 @@ class explorer {
                 if (!isElementTarget) return; // js error不再处理
 
                 let url = target.src || target.href;
-                debugger;
                 config.sendError({
                     title: target.nodeName,
                     msg: url,
@@ -260,8 +260,21 @@ class explorer {
         _window.fetch = function () {
             return _oldFetch.apply(this, arguments)
                 .then(res => {
-                    return Promise.resolve(res);
-                }, error => {
+                    if (!res.ok) { // True if status is HTTP 2xx
+                        if(res.url===config.submitUrl){
+                            console.log('提交错误报错，请检查后台firEye-server是否运行正常');
+                        }else{
+                            config.sendError({
+                                title: arguments[0],
+                                msg: JSON.stringify(res),
+                                category: 'fetch',
+                                level: 'error'
+                            });
+                        }
+                    }
+                    return res;
+                })
+                .catch(error => {
                     config.sendError({
                         title: arguments[0],
                         msg: JSON.stringify({
@@ -288,7 +301,6 @@ class explorer {
         if (!_window.XMLHttpRequest) {
             return;
         }
-
         let xmlhttp = _window.XMLHttpRequest;
 
         let _oldSend = xmlhttp.prototype.send;

@@ -1,5 +1,7 @@
 
 import { record, Replayer } from 'rrweb'
+const DIVIDE = "/$##$/"
+let self=null
 class explorer {
     constructor() {
         this.config = {
@@ -11,14 +13,17 @@ class explorer {
             scriptError: false, // 跨域js错误，默认不处理，因为没有任何信息
             vue: true,
             autoReport: true,
+            custom: true,//自定义抛出
             filters: [], // 过滤器，命中的不上报
-            levels: ['info', 'warning', 'error', 'dead'],
-            category: ['js', 'resource', 'ajax'],
+            levels: ['info', 'warning', 'error'],
+            category: ['js', 'resource', 'network', 'log'],
             record: false,//是否录制
             uploadLength: 30,//默认上传的最低长度
             appId: "",
             appScrect: ""
         };
+        this.extend = {};
+        self=this;
         this._window = typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
         this.addEventListener = this._window.addEventListener || this._window.attachEvent;
         this._window.recordEvent = [];//录制事件
@@ -29,60 +34,59 @@ class explorer {
             browser: this.getBrowser(),//浏览器
             os: this.getDevices(),//操作系统
             osVersion: this.getSystemVersion(),//操作系统版本
-            errUrl: this._window.location.href,//url
         }//默认错误信息上报
         this.config.sendError = (error) => {
+            this.sendToServer(error, "error")
+        }
+        this.config.sendWarn = (warn) => {
+            this.sendToServer(error, "warning")
+        }
+    }
+
+    sendToServer(info, level = "error") {
+        if (level === "error") {
             /*如果需要录制功能*/
             if (this._window.recordEvent) {
                 if (this._window.recordEvent.lenght >= 30) {
-                    error.records = this._window.recordEvent;
+                    info.records = this._window.recordEvent;
                 } else {
-                    error.records = this._window.eventBackUp.concat(this._window.recordEvent);
+                    info.records = this._window.eventBackUp.concat(this._window.recordEvent);
                 }
             }
-            try {
-                for (let i in this.defaultInfo) {
-                    error[i] = this.defaultInfo[i];
+            for (let i in this.defaultInfo) {
+                info[i] = this.defaultInfo[i];
+            }
+            if(this.extend){
+                for(let key in this.extend){
+                    info[key]=this.isFunction(this.extend[key])?this.extend[key]():this.extend[key]
                 }
-                fetch(this.config.submitUrl, {
-                    method: "POST",
-                    headers: {
-                        'Content-Type': 'application/json',
-                        appId: this.config.appId,
-                        appScrect: this.config.appScrect,
-                    },
-                    body: JSON.stringify(error),
-                }).then(res => {
-                    // console.log(res)
-                })
-                    .catch(error => console.error('Error:', error));
-            } catch (e) { }
+            }
+            // error.network
+        } else if (level = "warning") {
+            this.warnList.push(info)
+            if (this.warnList.length < this.config.uploadLength) {
+                return
+            }
+            //上报警告信息
+            info = {
+                arr: this.warnList.map(item => JSON.stringify(item)).join(DIVIDE)
+            }
         }
-        this.config.sendWarn = (warn) => {
-            try {
-                for (let i in this.defaultInfo) {
-                    warn[i] = this.defaultInfo[i];
-                }
-                if (this.warnList < this.config.uploadLength) {
-                    this.warnList.push(warn)
-                } else {
-                    fetch(this.config.submitUrl, {
-                        method: "POST",
-                        headers: {
-                            'Content-Type': 'application/json',
-                            appId: this.config.appId,
-                            appScrect: this.config.appScrect,
-                        },
-                        body: JSON.stringify(warn),
-                    }).then(res => {
-                        // console.log(res)
-                        this.warnList=[]
-                    })
-                        .catch(warn => console.warn('Error:', warn));
-                }
-            } catch (e) { }
-
+        try {
+            fetch(this.config.submitUrl, {
+                method: "POST",
+                headers: {
+                    'Content-Type': 'application/json',
+                    appId: this.config.appId,
+                    appScrect: this.config.appScrect,
+                },
+                body: JSON.stringify(info),
+            }).then(res => {
+                // console.log(res)
+            })
+                .catch(error => console.error('Error:', error));
         }
+        catch (e) { }
     }
 
     isFunction(what) { return typeof what === 'function'; }
@@ -96,9 +100,7 @@ class explorer {
         }
 
         if (errorInfo) {
-            for (let i in errorInfo) {
-                this.defaultInfo[i] = errorInfo[i];
-            }
+            this.extend = errorInfo
         }
 
         if (!this.config.scriptError) {
@@ -133,6 +135,9 @@ class explorer {
             this.handleVueError(this._window, this.config);
             this.handleVueWarn(this._window, this.config)
         }
+        if (this.config.custom) {
+            this._window.ThrowError = this.ThrowError
+        }
     }
 
 
@@ -159,23 +164,25 @@ class explorer {
         _window.onerror = function (msg, url, line, col, error) {
             if (error && error.stack) {
                 config.sendError({
-                    title: msg,
+                    title: url || _window.location.href,
                     msg: error.stack,
                     category: 'js',
                     level: 'error',
+                    create: "window.onerror",
                     line: line,
                     col: col,
                 });
             } else if (typeof msg === 'string') {
                 config.sendError({
-                    title: msg,
+                    title: url || _window.location.href,
                     msg: JSON.stringify({
-                        resourceUrl: url,
+                        info: msg,
                         line: line,
                         col: col
                     }),
                     category: 'js',
-                    level: 'error'
+                    level: 'error',
+                    create: "onerror",
                 });
             }
             if (_oldWindowError && isFunction(_oldWindowError)) {
@@ -190,9 +197,10 @@ class explorer {
             if (event) {
                 let reason = event.reason;
                 config.sendError({
-                    title: 'unhandledrejection',
+                    title: _window.location.href,
                     msg: reason,
                     category: 'js',
+                    create: 'unhandledrejection',
                     level: 'error',
                 });
             }
@@ -208,10 +216,14 @@ class explorer {
                 if (!isElementTarget) return; // js error不再处理
                 let url = target.src || target.href;
                 config.sendError({
-                    title: target.nodeName,
-                    msg: url,
+                    title: _window.location.href,
+                    info: target.nodeName,
+                    msg: JSON.stringify({
+                        url: url,
+                    }),
                     category: 'resource',
-                    level: 'error'
+                    level: 'error',
+                    create: "error Listener"
                 });
             }
         }, true);
@@ -222,6 +234,10 @@ class explorer {
         if (!_window.fetch) return;
         let _oldFetch = _window.fetch;
         _window.fetch = function () {
+            if (!_window.navigator.onLine) {
+                console.log("用户已断网")
+                return;
+            }
             return _oldFetch.apply(this, arguments)
                 .then(res => {
                     if (!res.ok) { // True if status is HTTP 2xx
@@ -229,10 +245,12 @@ class explorer {
                             console.log('提交错误报错，请检查后台frontend-sniper-server是否运行正常');
                         } else {
                             config.sendError({
-                                title: arguments[0],
+                                title: _window.location.href,
+                                posturl: arguments[0],
                                 msg: JSON.stringify(res),
-                                category: 'fetch',
-                                level: 'error'
+                                category: 'network',
+                                level: 'error',
+                                create: "fetch check",
                             });
                         }
                     }
@@ -240,13 +258,12 @@ class explorer {
                 })
                 .catch(error => {
                     config.sendError({
-                        title: arguments[0],
-                        msg: JSON.stringify({
-                            message: error.message,
-                            stack: error.stack
-                        }),
-                        category: 'fetch',
-                        level: 'error'
+                        title: _window.location.href,
+                        posturl: arguments[0],
+                        msg: error,
+                        category: 'network',
+                        level: 'error',
+                        create: "fetch check",
                     });
                     throw error;
                 })
@@ -257,8 +274,6 @@ class explorer {
     handleAjaxError(_window, config) {
         var protocol = _window.location.protocol;
         if (protocol === 'file:') return;
-        console.log('ajax');
-
         // 处理fetch
         this._handleFetchError(_window, config);
 
@@ -276,15 +291,17 @@ class explorer {
                     console.log('提交错误报错，请检查后台frontend-sniper-server是否运行正常');
                 } else {
                     config.sendError({
-                        title: event.target.responseURL,
+                        title: _window.location.href,
+                        posturl: event.target.responseURL,
                         msg: JSON.stringify({
                             response: event.target.response,
                             responseURL: event.target.responseURL,
                             status: event.target.status,
                             statusText: event.target.statusText
                         }),
-                        category: 'ajax',
-                        level: 'error'
+                        category: 'network',
+                        level: 'error',
+                        create: "ajax check",
                     });
                 }
 
@@ -315,25 +332,27 @@ class explorer {
         let _oldConsoleError = _window.console.error;
         _window.console.error = function () {
             config.sendError({
-                title: 'consoleError',
+                title: _window.location.href,
                 msg: JSON.stringify(arguments.join(',')),
                 category: 'js',
-                level: 'error'
+                level: 'error',
+                create: "consoleError"
             });
             _oldConsoleError && _oldConsoleError.apply(_window, arguments);
         };
     };
 
-    //处理console warnning
+    //处理console warning
     handleConsoleWarnning(_window, config) {
         if (!_window.console || !_window.console.warn) return;
         let _oldConsoleWarn = _window.console.warn;
         _window.console.warn = function () {
             config.sendError({
-                title: 'console warnning',
+                title: _window.location.href,
                 msg: JSON.stringify(arguments.join(",")),
                 category: 'js',
-                level: 'warnning',
+                level: 'warning',
+                create: "'console warning'",
             });
             _oldConsoleWarn && _oldConsoleWarn.apply(_window, arguments);
         };
@@ -344,16 +363,21 @@ class explorer {
         if (!vue || !vue.config) return; // 没有找到vue实例
         var _oldVueError = vue.config.errorHandler;
         Vue.config.errorHandler = function VueErrorHandler(error, vm, info) {
+            let metaData = {}
             if (Object.prototype.toString.call(vm) === '[object Object]') {
-                error.componentName = vm._isVue ? vm.$options.name || vm.$options._componentTag : vm.name;
-                error.propsData = vm.$options.propsData;
+                metaData.componentName = vm._isVue ? vm.$options.name || vm.$options._componentTag : vm.name;
+                metaData.propsData = vm.$options.propsData;
             }
             console.error(error)
+            metaData.stack = error.stack;
+            metaData.message = error.message;
             config.sendError({
-                title: 'vue Error',
-                msg: JSON.stringify(error),
+                title: _window.location.href,
+                msg: error.stack,
+                data: metaData,
                 category: 'js',
-                level: 'error'
+                level: 'error',
+                create: 'vue Error',
             });
 
             if (_oldVueError && isFunction(_oldVueError)) {
@@ -375,9 +399,13 @@ class explorer {
                 metaData.propsData = vm.$options.propsData;
             }
             console.warn(msg)
+            metaData.stack = msg.stack;
+            metaData.message = msg.message;
             config.sendError({
-                title: 'vue Warn',
-                msg: metaData,
+                title: _window.location.href,
+                create: 'vue Warn',
+                msg: msg.stack,
+                data: JSON.stringify(metaData),
                 category: 'js',
                 level: 'warn',
             });
@@ -391,7 +419,13 @@ class explorer {
 
     //自定义抛出错误
     ThrowError(err, addition) {
-        this.config.sendError(Object.assign(err, addition))
+        if (addition) {
+            for (let i in addition) {
+                err[i] = addition[i]
+            }
+        }
+        console.log(err)
+        self.config.sendError(err)
     }
 
     getBrowser() {

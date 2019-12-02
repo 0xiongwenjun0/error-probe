@@ -1,18 +1,83 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
 </head>
+
 <body>
     <img src="../sdsda/asdsd.jpg" />
-<button>123</button>
-<button onclick="test()">456</button>
-<script>
-
-    function test(){
-        fetch('sdsdasdasd');
-    }
-</script>
+    <button>123</button>
+    <button onclick="test()">456</button>
+    <div class="errorlist">
+        <div class="error">
+            <button class="button VueError" onclick="throwError()">Vue 抛出错误</button>
+        </div>
+        <div class="error">
+            <button class="button VueWarn" onclick="throwWarn()">Vue 抛出警告</button>
+        </div>
+        <div class="error">
+            <div class="image">
+                <img class="Img"
+                    src="https://ss1.bdstatic.com/70cFuXSh_Q1YnxGkpoWK1HF6hhy/it/u=1659991449,291839384&fm=26&gp=0.jpg""
+                    alt />
+            </div>
+            <button class=" button ImageError" onclick="imgError()">资源加载错误</button>
+                <button class="reset" onclick="resetImg()">重置</button>
+            </div>
+            <div class="error">
+                <button class="button PromiseError" onclick="createPromise()">Promise 无 Reject</button>
+            </div>
+            <div class="error">
+                <button class="button fetchError" onclick="createFetch()">fetch请求错误</button>
+            </div>
+            <div class="error">
+                <button class="button" onclick="createError()">自定义抛出错误</button>
+            </div>
+            <div class="error">
+                <button class="button"></button>
+            </div>
+        </div>
+        <script src="./index.js"></script>
+        <script>
+            let img = document.querySelector("Img")
+            function imgError() {
+                img.setAttribute("src", "https://ss1.bdstatic.com/70cFuXSh_Q1YnxGkpoWK1HF6hhy/it/u=1659991449.png")
+            }
+            function resetImg() {
+                img.setAttribute("src", "https://ss1.bdstatic.com/70cFuXSh_Q1YnxGkpoWK1HF6hhy/it/u=1659991449,291839384&fm=26&gp=0.jpg")
+            }
+            function createError() {
+                window.ThrowError({ msg: "测试错误" });
+            }
+            function createPromise() {
+                let promise = new Promise((res, rej) => {
+                    rej("未处理错误");
+                }).then(res => {
+                    console.log(res);
+                });
+            }
+            function throwError() {
+                throw new Error("抛出错误");
+            }
+            function throwWarn() {
+                throw new Warn("抛出警告");
+            }
+            function createFetch() {
+                fetch("http://www.baidu.com", {
+                    method: "POST",
+                    headers: {
+                        // "Content-Type": "application/json"
+                    }
+                }).then(res => {
+                    console.log(res);
+                });
+            }
+            function test() {
+                fetch('sdsdasdasd');
+            }
+        </script>
 </body>
+
 </html>

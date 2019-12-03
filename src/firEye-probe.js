@@ -39,7 +39,7 @@ class explorer {
             browser: this._getBrowser(),//浏览器
             os: this._getDevices(),//操作系统
             osVersion: this._getSystemVersion(),//操作系统版本
-            memery:this._window.navigator.deviceMemory//获取用户的最大内存 G
+            memery: this._window.navigator.deviceMemory//获取用户的最大内存 G
         }//默认错误信息上报
         this.config.sendError = (error) => {
             /*如果需要录制功能*/
@@ -58,18 +58,28 @@ class explorer {
             if (this.extend) {
                 if (!error.extends)
                     error.extends = {}
-                let ex = error.extends;
                 let result = this._getExtend(this.extend)
-                for (let key in this.result) {
-                    ex[key] = result[key]
-                }
+                error.extends=Object.assign(error.extends,result)
             }
+            console.log("error",error)
             this._sendToServer(error)
         }
         this.config.sendWarn = (warn, send) => {
             if (!send) {
+                //添加默认数据
+            for (let i in this.defaultInfo) {
+                warn[i] = this.defaultInfo[i];
+            }
+            //添加自定义数据
+            if (this.extend) {
+                if (!warn.extends)
+                    warn.extends = {}
+                let result = this._getExtend(this.extend)
+                warn.extends=Object.assign(warn.extends,result)
+            }
                 this.warnList.push(warn)
-                //判断是否到达上传的时间
+                console.log(this.warnList)
+                //判断是否到达上传的长度
                 if (this.warnList.length < this.config.uploadWarnLength) {
                     return
                 }
@@ -100,11 +110,13 @@ class explorer {
                     appScrect: this.config.appScrect,
                 },
                 body: JSON.stringify(info),
-            }).then(res => {
-                // console.log(res)
             })
+                .then(res => {
+                    if (info instanceof Array) this.warnList = []
+                })
                 .catch(error => {
-                    this.FailErrorList.push(info)
+                    if (this.isObject(info))
+                        this.FailErrorList.push(info)
                 });
         }
         catch (e) { }
@@ -398,7 +410,7 @@ class explorer {
         _window.console.error = function () {
             config.sendError({
                 title: _window.location.href,
-                msg: JSON.stringify(Array.prototype.join.call(arguments,',')),
+                msg: JSON.stringify(Array.prototype.join.call(arguments, ',')),
                 category: 'js',
                 level: 'error',
                 extends: {
@@ -416,7 +428,7 @@ class explorer {
         _window.console.warn = function () {
             config.sendWarn({
                 title: _window.location.href,
-                msg: JSON.stringify(arguments.join(",")),
+                msg: JSON.stringify(Array.prototype.join.call(arguments, ',')),
                 category: 'js',
                 level: 'warning',
                 extends: {

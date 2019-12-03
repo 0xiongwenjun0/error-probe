@@ -1,5 +1,7 @@
 
 import { record, Replayer } from 'rrweb'
+// import Vue from "vue"
+
 const DIVIDE = "/$##$/"
 let self = null
 class explorer {
@@ -14,6 +16,7 @@ class explorer {
             vue: true,
             autoReport: true,
             custom: true,//自定义抛出
+            closeWarn: false,//是否停止监听Warn
             filters: [], // 过滤器，命中的不上报
             levels: ['info', 'warning', 'error'],
             category: ['js', 'resource', 'ajax', 'log'],
@@ -33,9 +36,10 @@ class explorer {
         this.FailErrorList = []
         this.defaultInfo = {
             ua: this._window.navigator.userAgent,
-            browser: this.getBrowser(),//浏览器
-            os: this.getDevices(),//操作系统
-            osVersion: this.getSystemVersion(),//操作系统版本
+            browser: this._getBrowser(),//浏览器
+            os: this._getDevices(),//操作系统
+            osVersion: this._getSystemVersion(),//操作系统版本
+            memery:this._window.navigator.deviceMemory//获取用户的最大内存 G
         }//默认错误信息上报
         this.config.sendError = (error) => {
             /*如果需要录制功能*/
@@ -55,12 +59,12 @@ class explorer {
                 if (!error.extends)
                     error.extends = {}
                 let ex = error.extends;
-                let result = this.getExtend(this.extend)
+                let result = this._getExtend(this.extend)
                 for (let key in this.result) {
                     ex[key] = result[key]
                 }
             }
-            this.sendToServer(error)
+            this._sendToServer(error)
         }
         this.config.sendWarn = (warn, send) => {
             if (!send) {
@@ -73,20 +77,20 @@ class explorer {
             //上报警告信息
             if (this.warnList.length > 0) {
                 let arr = this.warnList.map(item => JSON.stringify(item)).join(DIVIDE)
-                this.sendToServer(arr)
+                this._sendToServer(arr)
             }
             if (this.FailErrorList.length > 0) {
-                this.sendToServer(this.FailErrorList)
+                this._sendToServer(this.FailErrorList)
             }
         }
-        this.config.sendLog = (info)=>{
-            info.title=this._window.navigator.location;
-            info.category="log";
-            this.sendToServer(info)
+        this.config.sendLog = (info) => {
+            info.title = this._window.location.href;
+            info.category = "log";
+            this._sendToServer(info)
         }
     }
 
-    sendToServer(info) {
+    _sendToServer(info) {
         try {
             fetch(this.config.submitUrl, {
                 method: "POST",
@@ -105,7 +109,7 @@ class explorer {
         }
         catch (e) { }
     }
-    getExtend(extend) {
+    _getExtend(extend) {
         if (this.isFunction(extend)) {
             let result = extend()
             if (this.isObject(result))
@@ -145,45 +149,47 @@ class explorer {
         // 开始录制
         if (this.config.record) {
             console.log('=====开始录制错误======');
-            this.startRecord();
+            this._startRecord();
         }
 
         // 处理过滤器
 
         if (this.config.jsError) {
-            this.handleWindowError(this._window, this.config);
+            this._handleWindowError(this._window, this.config);
         }
         if (this.config.jsError) {
-            this.handleRejectPromise(this._window, this.config);
+            this._handleRejectPromise(this._window, this.config);
         }
         if (this.config.resourceError && addEventListener) {
-            this.handleResourceError(this._window, this.config);
+            this._handleResourceError(this._window, this.config);
         }
         if (this.config.ajaxError) {
-            this.handleAjaxError(this._window, this.config);
+            this._handleAjaxError(this._window, this.config);
         }
         if (this.config.consoleError) {
-            this.handleConsoleError(this._window, this.config);
-            this.handleConsoleWarnning(this._window, this.config);
-            this._window.addEventListener("beforeunload", function () {
-                this.config.sendWarn({}, true)
-            })
+            this._handleConsoleError(this._window, this.config);
+            if (!this.config.closeWarn)
+                this._handleConsoleWarnning(this._window, this.config);
         }
         if (this.config.vue) {
-            this.handleVueError(this._window, this.config);
-            this.handleVueWarn(this._window, this.config)
+            this._handleVueError(this._window, this.config);
+            if (!this.config.closeWarn)
+                this._handleVueWarn(this._window, this.config)
         }
         if (this.config.custom) {
-            this._window.Log = {
-                error:this.ThrowError,
-                warn:this.ThrowWarn,
-                info:this.ThrowInfo
+            this._window.fireLog = {
+                error: this._ThrowError,
+                warn: this._ThrowWarn,
+                info: this._ThrowInfo
             }
         }
+        this._window.addEventListener("beforeunload", function () {
+            this.config.sendWarn({}, true)
+        })
     }
 
 
-    startRecord() {
+    _startRecord() {
         record({
             emit: (event) => {
                 /*
@@ -201,7 +207,7 @@ class explorer {
     }
 
     /*监听windows错误*/
-    handleWindowError(_window, config) {
+    _handleWindowError(_window, config) {
         let _oldWindowError = _window.onerror;
         _window.onerror = function (msg, url, line, col, error) {
             if (error && error.stack) {
@@ -238,7 +244,7 @@ class explorer {
     }
 
     /*监听Promise Reject错误*/
-    handleRejectPromise(_window, config) {
+    _handleRejectPromise(_window, config) {
         _window.addEventListener('unhandledrejection', function (event) {
             if (event) {
                 let reason = event.reason;
@@ -256,7 +262,7 @@ class explorer {
     };
 
     /*监听资源错误*/
-    handleResourceError(_window, config) {
+    _handleResourceError(_window, config) {
         _window.addEventListener('error', function (event) {
             if (event) {
                 let target = event.target || event.srcElement;
@@ -328,7 +334,7 @@ class explorer {
     };
 
     /*监听ajax请求错误*/
-    handleAjaxError(_window, config) {
+    _handleAjaxError(_window, config) {
         var protocol = _window.location.protocol;
         if (protocol === 'file:') return;
         // 处理fetch
@@ -386,13 +392,13 @@ class explorer {
     };
 
     /*监听Console 错误*/
-    handleConsoleError(_window, config) {
+    _handleConsoleError(_window, config) {
         if (!_window.console || !_window.console.error) return;
         let _oldConsoleError = _window.console.error;
         _window.console.error = function () {
             config.sendError({
                 title: _window.location.href,
-                msg: JSON.stringify(arguments.join(',')),
+                msg: JSON.stringify(Array.prototype.join.call(arguments,',')),
                 category: 'js',
                 level: 'error',
                 extends: {
@@ -404,7 +410,7 @@ class explorer {
     };
 
     //处理console warning
-    handleConsoleWarnning(_window, config) {
+    _handleConsoleWarnning(_window, config) {
         if (!_window.console || !_window.console.warn) return;
         let _oldConsoleWarn = _window.console.warn;
         _window.console.warn = function () {
@@ -421,11 +427,14 @@ class explorer {
         };
     };
 
-    handleVueError(_window, config) {
-        var vue = _window.Vue || _window.vue;
-        if (!vue || !vue.config) return; // 没有找到vue实例
+    _handleVueError(_window, config) {
+        var vue = config.Vue || config.vue || _window.Vue || _window.vue;
+        if (!vue || !vue.config) {
+            console.log("未找到Vue对象")
+            return; // 没有找到vue实例
+        }
         var _oldVueError = vue.config.errorHandler;
-        Vue.config.errorHandler = function VueErrorHandler(error, vm, info) {
+        vue.config.errorHandler = function VueErrorHandler(error, vm, info) {
             let metaData = {}
             if (Object.prototype.toString.call(vm) === '[object Object]') {
                 metaData.componentName = vm._isVue ? vm.$options.name || vm.$options._componentTag : vm.name;
@@ -451,9 +460,10 @@ class explorer {
         };
     };
 
-    handleVueWarn(_window, config) {
-        var vue = _window.Vue || this.config.Vue;
+    _handleVueWarn(_window, config) {
+        var vue = config.Vue || config.vue || _window.Vue || _window.vue;
         if (!vue || !vue.config) {
+            console.log("未找到Vue对象")
             return
         } // 没有找到vue实例
         var _oldVueWarn = vue.config.warnHandler
@@ -485,40 +495,58 @@ class explorer {
     }
 
     //自定义抛出错误
-    ThrowError(errInfo, addition) {
+    _ThrowError(errInfo, addition) {
         let error = {
             level: "error",
-            msg: JSON.stringify(errInfo)
+            msg: JSON.stringify(errInfo),
+            extends: {
+                create: "fireLog Error"
+            }
         }
         if (addition) {
-            error.extends = addition
+            let ex = this._getExtend(addition)
+            for (let key in ex) {
+                error.extends[key] = ex[key]
+            }
         }
         self.config.sendLog(error)
     }
     //自定义抛出警告
-    ThrowWarn(warnInfo, addition) {
+    _ThrowWarn(warnInfo, addition) {
         let warn = {
             level: "warning",
-            msg: JSON.stringify(warnInfo)
+            msg: JSON.stringify(warnInfo),
+            extends: {
+                create: "fireLog Error"
+            }
         }
         if (addition) {
-            warn.extends = addition
+            let ex = this._getExtend(addition)
+            for (let key in ex) {
+                warn.extends[key] = ex[key]
+            }
         }
         self.config.sendLog(warn)
     }
     //自定义抛出普通日志信息
-    ThrowInfo(info, addition) {
+    _ThrowInfo(info, addition) {
         let information = {
             level: "info",
-            msg: JSON.stringify(info)
+            msg: JSON.stringify(info),
+            extends: {
+                create: "fireLog Error"
+            }
         }
         if (addition) {
-            information.extends = addition
+            let ex = this._getExtend(addition)
+            for (let key in ex) {
+                information.extends[key] = ex[key]
+            }
         }
         self.config.sendLog(information)
     }
 
-    getBrowser() {
+    _getBrowser() {
         var userAgent = navigator.userAgent // 取得浏览器的userAgent字符串
         var isOpera = userAgent.indexOf('Opera') > -1
         if (isOpera) {
@@ -541,7 +569,7 @@ class explorer {
     /**
      获取设备是安卓、IOS  还是PC端
     */
-    getDevices() {
+    _getDevices() {
         var u = navigator.userAgent, app = navigator.appVersion
         if (/AppleWebKit.*Mobile/i.test(navigator.userAgent) || (/MIDP|SymbianOS|NOKIA|SAMSUNG|LG|NEC|TCL|Alcatel|BIRD|DBTEL|Dopod|PHILIPS|HAIER|LENOVO|MOT-|Nokia|SonyEricsson|SIE-|Amoi|ZTE/.test(navigator.userAgent))) {
             if (window.location.href.indexOf('?mobile') < 0) {
@@ -560,7 +588,7 @@ class explorer {
         }
     }
     //获取操作系统版本
-    getSystemVersion() {
+    _getSystemVersion() {
         var ua = window.navigator.userAgent
         if (ua.indexOf('CPU iPhone OS ') >= 0) {
             return ua.substring(ua.indexOf('CPU iPhone OS ') + 14, ua.indexOf(' like Mac OS X'))

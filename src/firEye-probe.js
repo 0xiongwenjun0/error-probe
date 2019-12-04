@@ -59,24 +59,24 @@ class explorer {
                 if (!error.extends)
                     error.extends = {}
                 let result = this._getExtend(this.extend)
-                error.extends=Object.assign(error.extends,result)
+                error.extends = Object.assign(error.extends, result)
             }
-            console.log("error",error)
+            console.log("error", error)
             this._sendToServer(error)
         }
         this.config.sendWarn = (warn, send) => {
             if (!send) {
                 //添加默认数据
-            for (let i in this.defaultInfo) {
-                warn[i] = this.defaultInfo[i];
-            }
-            //添加自定义数据
-            if (this.extend) {
-                if (!warn.extends)
-                    warn.extends = {}
-                let result = this._getExtend(this.extend)
-                warn.extends=Object.assign(warn.extends,result)
-            }
+                for (let i in this.defaultInfo) {
+                    warn[i] = this.defaultInfo[i];
+                }
+                //添加自定义数据
+                if (this.extend) {
+                    if (!warn.extends)
+                        warn.extends = {}
+                    let result = this._getExtend(this.extend)
+                    warn.extends = Object.assign(warn.extends, result)
+                }
                 this.warnList.push(warn)
                 console.log(this.warnList)
                 //判断是否到达上传的长度
@@ -86,7 +86,7 @@ class explorer {
             }
             //上报警告信息
             if (this.warnList.length > 0) {
-                let arr = this.warnList.map(item => JSON.stringify(item)).join(DIVIDE)
+                let arr = this.warnList.map(item => JSON.stringify(item))
                 this._sendToServer(arr)
             }
             if (this.FailErrorList.length > 0) {
@@ -102,6 +102,7 @@ class explorer {
 
     _sendToServer(info) {
         try {
+            let isArr = info instanceof Array
             fetch(this.config.submitUrl, {
                 method: "POST",
                 headers: {
@@ -109,13 +110,13 @@ class explorer {
                     appId: this.config.appId,
                     appScrect: this.config.appScrect,
                 },
-                body: JSON.stringify(info),
+                body: isArr ? info : JSON.stringify(info),
             })
                 .then(res => {
-                    if (info instanceof Array) this.warnList = []
+                    if (isArr) this.warnList = []
                 })
                 .catch(error => {
-                    if (this.isObject(info))
+                    if (!isArr)
                         this.FailErrorList.push(info)
                 });
         }
@@ -147,6 +148,9 @@ class explorer {
         if (options) {
             for (let i in options) {
                 this.config[i] = options[i];
+            }
+            if(this.config.extend){
+                this.extend=this.config.extend
             }
         }
 
@@ -492,7 +496,7 @@ class explorer {
                 title: _window.location.href,
                 msg: JSON.stringify(msg.stack),
                 category: 'js',
-                level: 'warn',
+                level: 'warning',
                 extends: {
                     create: 'vue Warn',
                     data: metaData,

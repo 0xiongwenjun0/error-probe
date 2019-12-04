@@ -61,7 +61,6 @@ class explorer {
                 let result = this._getExtend(this.extend)
                 error.extends = Object.assign(error.extends, result)
             }
-            console.log("error", error)
             this._sendToServer(error)
         }
         this.config.sendWarn = (warn, send) => {
@@ -85,12 +84,9 @@ class explorer {
                 }
             }
             //上报警告信息
-            if (this.warnList.length > 0) {
-                let arr = this.warnList.map(item => JSON.stringify(item))
+            if (this.warnList.length+this.FailErrorList.length > 0) {
+                let arr = this.warnList.concat(this.FailErrorList)
                 this._sendToServer(arr)
-            }
-            if (this.FailErrorList.length > 0) {
-                this._sendToServer(this.FailErrorList)
             }
         }
         this.config.sendLog = (info) => {
@@ -110,14 +106,17 @@ class explorer {
                     appId: this.config.appId,
                     appScrect: this.config.appScrect,
                 },
-                body: isArr ? info : JSON.stringify(info),
+                body: JSON.stringify(info),
             })
                 .then(res => {
-                    if (isArr) this.warnList = []
+                    if (isArr) {
+                        self.warnList = []
+                        console.log("上传成功，清除警告数组")
+                    }
                 })
                 .catch(error => {
                     if (!isArr)
-                        this.FailErrorList.push(info)
+                        self.FailErrorList.push(info)
                 });
         }
         catch (e) { }
@@ -149,8 +148,8 @@ class explorer {
             for (let i in options) {
                 this.config[i] = options[i];
             }
-            if(this.config.extend){
-                this.extend=this.config.extend
+            if (this.config.extend) {
+                this.extend = this.config.extend
             }
         }
 
@@ -200,7 +199,7 @@ class explorer {
             }
         }
         this._window.addEventListener("beforeunload", function () {
-            this.config.sendWarn({}, true)
+            self.config.sendWarn({}, true)
         })
     }
 
@@ -306,10 +305,6 @@ class explorer {
         if (!_window.fetch) return;
         let _oldFetch = _window.fetch;
         _window.fetch = function () {
-            if (!_window.navigator.onLine) {
-                console.log("用户已断网")
-                return;
-            }
             return _oldFetch.apply(this, arguments)
                 .then(res => {
                     if (!res.ok) { // True if status is HTTP 2xx
@@ -444,7 +439,7 @@ class explorer {
     };
 
     _handleVueError(_window, config) {
-        var vue = config.Vue || config.vue || _window.Vue || _window.vue;
+        var vue = config.Vue || _window.Vue || _window.vue;
         if (!vue || !vue.config) {
             console.log("未找到Vue对象")
             return; // 没有找到vue实例
@@ -466,7 +461,6 @@ class explorer {
                 level: 'error',
                 extends: {
                     create: 'vue Error',
-                    data: metaData,
                 }
             });
 
@@ -477,7 +471,7 @@ class explorer {
     };
 
     _handleVueWarn(_window, config) {
-        var vue = config.Vue || config.vue || _window.Vue || _window.vue;
+        var vue = config.Vue || _window.Vue || _window.vue;
         if (!vue || !vue.config) {
             console.log("未找到Vue对象")
             return
@@ -499,7 +493,6 @@ class explorer {
                 level: 'warning',
                 extends: {
                     create: 'vue Warn',
-                    data: metaData,
                 }
             });
 

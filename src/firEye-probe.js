@@ -35,11 +35,11 @@ class explorer {
         this.warnList = [];
         this.FailErrorList = []
         this.defaultInfo = {
-            ua: this._window.navigator.userAgent,
+            // ua: this._window.navigator.userAgent,
             browser: this._getBrowser(),//浏览器
             os: this._getDevices(),//操作系统
             osVersion: this._getSystemVersion(),//操作系统版本
-            memery: this._window.navigator.deviceMemory//获取用户的最大内存 G
+            memory: this._window.navigator.deviceMemory//获取用户的最大内存 G
         }//默认错误信息上报
         this.config.sendError = (error) => {
             /*如果需要录制功能*/

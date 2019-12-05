@@ -39,7 +39,7 @@ class explorer {
             browser: this._getBrowser(),//浏览器
             os: this._getDevices(),//操作系统
             osVersion: this._getSystemVersion(),//操作系统版本
-            memory: this._window.navigator.deviceMemory//获取用户的最大内存 G
+            memory: this._window.navigator.deviceMemory,//获取用户的最大内存 G
         }//默认错误信息上报
         this.config.sendError = (error) => {
             /*如果需要录制功能*/
@@ -51,6 +51,7 @@ class explorer {
                 }
             }
             //添加默认数据
+            // console.log(this.defaultInfo)
             for (let i in this.defaultInfo) {
                 error[i] = this.defaultInfo[i];
             }
@@ -149,7 +150,7 @@ class explorer {
                 this.config[i] = options[i];
             }
             if (this.config.extend) {
-                this.extend = this.config.extend
+                this.extend = this.config.extends
             }
         }
 
@@ -233,8 +234,7 @@ class explorer {
                     level: 'error',
                     line: line,
                     col: col,
-                    extends: {
-                    }
+                    extends: {}
                 });
             } else if (typeof msg === 'string') {
                 config.sendError({
@@ -246,8 +246,7 @@ class explorer {
                     }),
                     category: 'js',
                     level: 'error',
-                    extends: {
-                    }
+                    extends: {}
                 });
             }
             if (_oldWindowError && isFunction(_oldWindowError)) {
@@ -266,8 +265,7 @@ class explorer {
                     msg: JSON.stringify(reason),
                     category: 'js',
                     level: 'error',
-                    extends: {
-                    }
+                    extends: {}
                 });
             }
         }, true);
@@ -288,8 +286,7 @@ class explorer {
                     }),
                     category: 'resource',
                     level: 'error',
-                    extends: {
-                    }
+                    extends: {}
                 });
             }
         }, true);
@@ -311,8 +308,7 @@ class explorer {
                                 msg: JSON.stringify(res),
                                 category: 'ajax',
                                 level: 'error',
-                                extends: {
-                                }
+                                extends: {}
                             });
                         }
                     }
@@ -327,8 +323,7 @@ class explorer {
                             msg: JSON.stringify(error),
                             category: 'ajax',
                             level: 'error',
-                            extends: {
-                            }
+                            extends: {}
                         });
                     throw error;
                 })
@@ -365,9 +360,7 @@ class explorer {
                         }),
                         category: 'ajax',
                         level: 'error',
-                        extends: {
-
-                        }
+                        extends: {}
                     });
                 }
 
@@ -402,8 +395,7 @@ class explorer {
                 msg: JSON.stringify(Array.prototype.join.call(arguments, ',')),
                 category: 'js',
                 level: 'error',
-                extends: {
-                }
+                extends: {}
             });
             _oldConsoleError && _oldConsoleError.apply(_window, arguments);
         };
@@ -419,8 +411,7 @@ class explorer {
                 msg: JSON.stringify(Array.prototype.join.call(arguments, ',')),
                 category: 'js',
                 level: 'warning',
-                extends: {
-                }
+                extends: {}
             });
             _oldConsoleWarn && _oldConsoleWarn.apply(_window, arguments);
         };
@@ -447,8 +438,7 @@ class explorer {
                 msg: JSON.stringify(error.stack),
                 category: 'js',
                 level: 'error',
-                extends: {
-                }
+                extends: {}
             });
 
             if (_oldVueError && isFunction(_oldVueError)) {
@@ -478,8 +468,7 @@ class explorer {
                 msg: JSON.stringify(msg.stack),
                 category: 'js',
                 level: 'warning',
-                extends: {
-                }
+                extends: {}
             });
 
             if (_oldVueWarn && isFunction(_oldVueWarn)) {
@@ -494,8 +483,7 @@ class explorer {
         let error = {
             level: "error",
             msg: JSON.stringify(errInfo),
-            extends: {
-            }
+            extends: {}
         }
         if (addition) {
             let ex = this._getExtend(addition)
@@ -510,8 +498,7 @@ class explorer {
         let warn = {
             level: "warning",
             msg: JSON.stringify(warnInfo),
-            extends: {
-            }
+            extends: {}
         }
         if (addition) {
             let ex = this._getExtend(addition)
@@ -526,8 +513,7 @@ class explorer {
         let information = {
             level: "info",
             msg: JSON.stringify(info),
-            extends: {
-            }
+            extends: {}
         }
         if (addition) {
             let ex = this._getExtend(addition)
@@ -576,7 +562,7 @@ class explorer {
         } else if (u.indexOf('iPad') > -1) {
             return 'iPhone'
         } else {
-            return 'PC'
+            return navigator.platform
         }
     }
     //获取操作系统版本

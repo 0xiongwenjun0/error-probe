@@ -84,7 +84,7 @@ class explorer {
                 }
             }
             //上报警告信息
-            if (this.warnList.length+this.FailErrorList.length > 0) {
+            if (this.warnList.length + this.FailErrorList.length > 0) {
                 let arr = this.warnList.concat(this.FailErrorList)
                 this._sendToServer(arr)
             }
@@ -234,7 +234,6 @@ class explorer {
                     line: line,
                     col: col,
                     extends: {
-                        create: "onerror",
                     }
                 });
             } else if (typeof msg === 'string') {
@@ -248,7 +247,6 @@ class explorer {
                     category: 'js',
                     level: 'error',
                     extends: {
-                        create: "onerror",
                     }
                 });
             }
@@ -269,7 +267,6 @@ class explorer {
                     category: 'js',
                     level: 'error',
                     extends: {
-                        create: 'unhandledrejection',
                     }
                 });
             }
@@ -292,8 +289,6 @@ class explorer {
                     category: 'resource',
                     level: 'error',
                     extends: {
-                        create: "error Listener",
-                        posturl: arguments[0],
                     }
                 });
             }
@@ -317,8 +312,6 @@ class explorer {
                                 category: 'ajax',
                                 level: 'error',
                                 extends: {
-                                    create: "fetch check",
-                                    posturl: arguments[0],
                                 }
                             });
                         }
@@ -335,8 +328,6 @@ class explorer {
                             category: 'ajax',
                             level: 'error',
                             extends: {
-                                create: "fetch check",
-                                posturl: arguments[0],
                             }
                         });
                     throw error;
@@ -375,8 +366,7 @@ class explorer {
                         category: 'ajax',
                         level: 'error',
                         extends: {
-                            create: "ajax check",
-                            posturl: event.target.responseURL,
+
                         }
                     });
                 }
@@ -413,7 +403,6 @@ class explorer {
                 category: 'js',
                 level: 'error',
                 extends: {
-                    create: "consoleError"
                 }
             });
             _oldConsoleError && _oldConsoleError.apply(_window, arguments);
@@ -431,7 +420,6 @@ class explorer {
                 category: 'js',
                 level: 'warning',
                 extends: {
-                    create: "'console warning'",
                 }
             });
             _oldConsoleWarn && _oldConsoleWarn.apply(_window, arguments);
@@ -460,7 +448,6 @@ class explorer {
                 category: 'js',
                 level: 'error',
                 extends: {
-                    create: 'vue Error',
                 }
             });
 
@@ -492,7 +479,6 @@ class explorer {
                 category: 'js',
                 level: 'warning',
                 extends: {
-                    create: 'vue Warn',
                 }
             });
 
@@ -509,7 +495,6 @@ class explorer {
             level: "error",
             msg: JSON.stringify(errInfo),
             extends: {
-                create: "fireLog Error"
             }
         }
         if (addition) {
@@ -526,7 +511,6 @@ class explorer {
             level: "warning",
             msg: JSON.stringify(warnInfo),
             extends: {
-                create: "fireLog Error"
             }
         }
         if (addition) {
@@ -543,7 +527,6 @@ class explorer {
             level: "info",
             msg: JSON.stringify(info),
             extends: {
-                create: "fireLog Error"
             }
         }
         if (addition) {

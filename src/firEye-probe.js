@@ -105,7 +105,7 @@ class explorer {
             })
                 .then(res => {
                     if (isArr) {
-                        self.warnList = []
+                        selfTemp.warnList = []
                         // console.log("上传成功，清除警告数组")
                     }
                 })
@@ -194,9 +194,9 @@ class explorer {
                 info: this._ThrowInfo
             }
         }
-        var self =this
+        var selfTemp =this
         this._window.addEventListener("beforeunload", function () {
-            self.config.sendWarn({}, true)
+            selfTemp.config.sendWarn({}, true)
         })
     }
 

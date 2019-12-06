@@ -23,8 +23,7 @@ class explorer {
             appScrect: ""
         };
         this.extend = {};
-        self = this;
-        this._window = typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
+        this._window = typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof this !== 'undefined' ? this : {};
         this.addEventListener = this._window.addEventListener || this._window.attachEvent;
         this._window.recordEvent = [];//录制事件
         this._window.eventBackUp = [];//录制时间备份
@@ -39,15 +38,14 @@ class explorer {
         }//默认错误信息上报
         this.config.sendError = (error) => {
             /*如果需要录制功能*/
-            if (self._window.recordEvent) {
-                if (self._window.recordEvent.lenght >= 30) {
-                    error.records = self._window.recordEvent;
+            if (this._window.recordEvent) {
+                if (this._window.recordEvent.lenght >= 30) {
+                    error.records = this._window.recordEvent;
                 } else {
-                    error.records = self._window.eventBackUp.concat(self._window.recordEvent);
+                    error.records = this._window.eventBackUp.concat(this._window.recordEvent);
                 }
             }
             //添加默认数据
-            // console.log(this.defaultInfo)
             for (let i in this.defaultInfo) {
                 error[i] = this.defaultInfo[i];
             }
@@ -113,7 +111,7 @@ class explorer {
                 })
                 .catch(error => {
                     if (!isArr)
-                        self.FailErrorList.push(info)
+                        this.FailErrorList.push(info)
                 });
         }
         catch (e) { }
@@ -489,7 +487,7 @@ class explorer {
                 error.extends[key] = ex[key]
             }
         }
-        self.config.sendLog(error)
+        this.config.sendLog(error)
     }
     //自定义抛出警告
     _ThrowWarn(warnInfo, addition) {
@@ -504,7 +502,7 @@ class explorer {
                 warn.extends[key] = ex[key]
             }
         }
-        self.config.sendLog(warn)
+        this.config.sendLog(warn)
     }
     //自定义抛出普通日志信息
     _ThrowInfo(info, addition) {
@@ -519,7 +517,7 @@ class explorer {
                 information.extends[key] = ex[key]
             }
         }
-        self.config.sendLog(information)
+        this.config.sendLog(information)
     }
 
     _getBrowser() {

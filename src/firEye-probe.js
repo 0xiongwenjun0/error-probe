@@ -1,7 +1,5 @@
 
 import { record, Replayer } from 'rrweb'
-// import Vue from "vue"
-let self = null
 class explorer {
     constructor() {
         this.config = {
@@ -25,8 +23,7 @@ class explorer {
             appScrect: ""
         };
         this.extend = {};
-        self = this;
-        this._window = typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
+        this._window = typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof this !== 'undefined' ? this : {};
         this.addEventListener = this._window.addEventListener || this._window.attachEvent;
         this._window.recordEvent = [];//录制事件
         this._window.eventBackUp = [];//录制时间备份
@@ -41,15 +38,14 @@ class explorer {
         }//默认错误信息上报
         this.config.sendError = (error) => {
             /*如果需要录制功能*/
-            if (self._window.recordEvent) {
-                if (self._window.recordEvent.lenght >= 30) {
-                    error.records = self._window.recordEvent;
+            if (this._window.recordEvent) {
+                if (this._window.recordEvent.lenght >= 30) {
+                    error.records = this._window.recordEvent;
                 } else {
-                    error.records = self._window.eventBackUp.concat(self._window.recordEvent);
+                    error.records = this._window.eventBackUp.concat(this._window.recordEvent);
                 }
             }
             //添加默认数据
-            // console.log(this.defaultInfo)
             for (let i in this.defaultInfo) {
                 error[i] = this.defaultInfo[i];
             }
@@ -76,7 +72,6 @@ class explorer {
                     warn.extends = Object.assign(warn.extends, result)
                 }
                 this.warnList.push(warn)
-                console.log(this.warnList)
                 //判断是否到达上传的长度
                 if (this.warnList.length < this.config.uploadWarnLength) {
                     return
@@ -109,13 +104,13 @@ class explorer {
             })
                 .then(res => {
                     if (isArr) {
-                        self.warnList = []
+                        this.warnList = []
                         console.log("上传成功，清除警告数组")
                     }
                 })
                 .catch(error => {
                     if (!isArr)
-                        self.FailErrorList.push(info)
+                        this.FailErrorList.push(info)
                 });
         }
         catch (e) { }
@@ -153,7 +148,6 @@ class explorer {
         }
 
         if (extend) {
-            console.log(this)
             this.extend = extend
         }
 
@@ -163,7 +157,6 @@ class explorer {
 
         // 开始录制
         if (this.config.record) {
-            console.log('=====开始录制错误======');
             this._startRecord();
         }
 
@@ -198,6 +191,7 @@ class explorer {
                 info: this._ThrowInfo
             }
         }
+        var self=this
         this._window.addEventListener("beforeunload", function () {
             self.config.sendWarn({}, true)
         })
@@ -419,7 +413,6 @@ class explorer {
     _handleVueError(_window, config) {
         var vue = config.Vue || _window.Vue || _window.vue;
         if (!vue || !vue.config) {
-            console.log("未找到Vue对象")
             return; // 没有找到vue实例
         }
         var _oldVueError = vue.config.errorHandler;
@@ -449,7 +442,6 @@ class explorer {
     _handleVueWarn(_window, config) {
         var vue = config.Vue || _window.Vue || _window.vue;
         if (!vue || !vue.config) {
-            console.log("未找到Vue对象")
             return
         } // 没有找到vue实例
         var _oldVueWarn = vue.config.warnHandler
@@ -490,7 +482,7 @@ class explorer {
                 error.extends[key] = ex[key]
             }
         }
-        self.config.sendLog(error)
+        this.config.sendLog(error)
     }
     //自定义抛出警告
     _ThrowWarn(warnInfo, addition) {
@@ -505,7 +497,7 @@ class explorer {
                 warn.extends[key] = ex[key]
             }
         }
-        self.config.sendLog(warn)
+        this.config.sendLog(warn)
     }
     //自定义抛出普通日志信息
     _ThrowInfo(info, addition) {
@@ -520,7 +512,7 @@ class explorer {
                 information.extends[key] = ex[key]
             }
         }
-        self.config.sendLog(information)
+        this.config.sendLog(information)
     }
 
     _getBrowser() {

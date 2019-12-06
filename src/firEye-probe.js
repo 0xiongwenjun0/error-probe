@@ -40,11 +40,11 @@ class explorer {
         }//默认错误信息上报
         this.config.sendError = (error) => {
             /*如果需要录制功能*/
-            if (this._window.recordEvent) {
-                if (this._window.recordEvent.lenght >= 30) {
-                    error.records = this._window.recordEvent;
+            if (self._window.recordEvent) {
+                if (self._window.recordEvent.lenght >= 30) {
+                    error.records = self._window.recordEvent;
                 } else {
-                    error.records = this._window.eventBackUp.concat(this._window.recordEvent);
+                    error.records = self._window.eventBackUp.concat(self._window.recordEvent);
                 }
             }
             //添加默认数据
@@ -146,12 +146,13 @@ class explorer {
             for (let i in options) {
                 this.config[i] = options[i];
             }
-            if (this.config.extend) {
+            if (this.config.extends) {
                 this.extend = this.config.extends
             }
         }
 
         if (extend) {
+            console.log(this)
             this.extend = extend
         }
 

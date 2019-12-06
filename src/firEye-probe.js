@@ -149,7 +149,7 @@ class explorer {
             for (let i in options) {
                 this.config[i] = options[i];
             }
-            if (this.config.extend) {
+            if (this.config.extends) {
                 this.extend = this.config.extends
             }
         }

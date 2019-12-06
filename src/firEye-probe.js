@@ -1,8 +1,6 @@
 
 import { record, Replayer } from 'rrweb'
 // import Vue from "vue"
-
-const DIVIDE = "/$##$/"
 let self = null
 class explorer {
     constructor() {
@@ -43,11 +41,11 @@ class explorer {
         }//默认错误信息上报
         this.config.sendError = (error) => {
             /*如果需要录制功能*/
-            if (this._window.recordEvent) {
-                if (this._window.recordEvent.lenght >= 30) {
-                    error.records = this._window.recordEvent;
+            if (self._window.recordEvent) {
+                if (self._window.recordEvent.lenght >= 30) {
+                    error.records = self._window.recordEvent;
                 } else {
-                    error.records = this._window.eventBackUp.concat(this._window.recordEvent);
+                    error.records = self._window.eventBackUp.concat(self._window.recordEvent);
                 }
             }
             //添加默认数据
@@ -155,6 +153,7 @@ class explorer {
         }
 
         if (extend) {
+            console.log(this)
             this.extend = extend
         }
 

@@ -1,8 +1,5 @@
 
-import { record, Replayer } from 'rrweb'
-// import Vue from "vue"
-
-const DIVIDE = "/$##$/"
+import { record } from 'rrweb'
 let self = null
 class explorer {
     constructor() {
@@ -577,7 +574,4 @@ class explorer {
         }
     }
 }
-
-
-
 export default new explorer();

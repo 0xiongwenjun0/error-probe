@@ -1,8 +1,8 @@
 {
-  "name": "firEye-probe",
-  "version": "1.0.0",
+  "name": "@xes/dh-module-firEye-probe",
+  "version": "1.0.1",
   "description": "前端错误探针",
-  "main": "lib/firEye-probe.js",
+  "main": "./src/firEye-probe.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "webpack --config webpack.production.config.js",

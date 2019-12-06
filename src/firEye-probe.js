@@ -1,6 +1,5 @@
 
 import { record } from 'rrweb'
-let self = null
 class explorer {
     constructor() {
         this.config = {
@@ -75,7 +74,7 @@ class explorer {
                     warn.extends = Object.assign(warn.extends, result)
                 }
                 this.warnList.push(warn)
-                console.log(this.warnList)
+                // console.log(this.warnList)
                 //判断是否到达上传的长度
                 if (this.warnList.length < this.config.uploadWarnLength) {
                     return
@@ -109,7 +108,7 @@ class explorer {
                 .then(res => {
                     if (isArr) {
                         self.warnList = []
-                        console.log("上传成功，清除警告数组")
+                        // console.log("上传成功，清除警告数组")
                     }
                 })
                 .catch(error => {
@@ -152,7 +151,7 @@ class explorer {
         }
 
         if (extend) {
-            console.log(this)
+            // console.log(this)
             this.extend = extend
         }
 
@@ -162,7 +161,7 @@ class explorer {
 
         // 开始录制
         if (this.config.record) {
-            console.log('=====开始录制错误======');
+            // console.log('=====开始录制错误======');
             this._startRecord();
         }
 
@@ -197,6 +196,7 @@ class explorer {
                 info: this._ThrowInfo
             }
         }
+        var self =this
         this._window.addEventListener("beforeunload", function () {
             self.config.sendWarn({}, true)
         })
@@ -299,7 +299,7 @@ class explorer {
                 .then(res => {
                     if (!res.ok) { // True if status is HTTP 2xx
                         if (res.url === config.submitUrl) {
-                            console.log('提交错误报错，请检查后台firEye-server是否运行正常');
+                            // console.log('提交错误报错，请检查后台firEye-server是否运行正常');
                         } else {
                             config.sendError({
                                 title: _window.location.href,
@@ -346,7 +346,7 @@ class explorer {
         let _handleEvent = function (event) {
             if (event && event.currentTarget && event.currentTarget.status !== 200) {
                 if (event.target.responseURL === config.submitUrl) {
-                    console.log('提交错误报错，请检查后台firEye-server是否运行正常');
+                    // console.log('提交错误报错，请检查后台firEye-server是否运行正常');
                 } else {
                     config.sendError({
                         title: _window.location.href,
@@ -418,7 +418,7 @@ class explorer {
     _handleVueError(_window, config) {
         var vue = config.Vue || _window.Vue || _window.vue;
         if (!vue || !vue.config) {
-            console.log("未找到Vue对象")
+            // console.log("未找到Vue对象")
             return; // 没有找到vue实例
         }
         var _oldVueError = vue.config.errorHandler;
@@ -448,7 +448,7 @@ class explorer {
     _handleVueWarn(_window, config) {
         var vue = config.Vue || _window.Vue || _window.vue;
         if (!vue || !vue.config) {
-            console.log("未找到Vue对象")
+            // console.log("未找到Vue对象")
             return
         } // 没有找到vue实例
         var _oldVueWarn = vue.config.warnHandler

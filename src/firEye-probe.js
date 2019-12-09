@@ -194,7 +194,7 @@ class explorer {
                 info: this._ThrowInfo
             }
         }
-        var selfTemp =this
+        var selfTemp = this
         this._window.addEventListener("beforeunload", function () {
             selfTemp.config.sendWarn({}, true)
         })
@@ -429,9 +429,14 @@ class explorer {
             console.error(error)
             metaData.stack = error.stack;
             metaData.message = error.message;
+            let lineOne = error.stack.match(/\((\S*)\)/)[1];
+            let arr = lineOne.split(":")
+            let length = arr.length;
             config.sendError({
                 title: _window.location.href,
                 msg: JSON.stringify(error.stack),
+                line: arr[length - 2],
+                col: arr[length - 1],
                 category: 'js',
                 level: 'error',
                 extends: {}
@@ -459,9 +464,14 @@ class explorer {
             console.warn(msg)
             metaData.stack = msg.stack;
             metaData.message = msg.message;
+            let lineOne = msg.stack.match(/\((\S*)\)/)[1];
+            let arr = lineOne.split(":")
+            let length=arr.length;
             config.sendWarn({
                 title: _window.location.href,
                 msg: JSON.stringify(msg.stack),
+                line: arr[length - 2],
+                col: arr[length - 1],
                 category: 'js',
                 level: 'warning',
                 extends: {}

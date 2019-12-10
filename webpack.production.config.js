@@ -1,3 +1,4 @@
+const DropConsoleWebpackPlugin = require('drop-console-webpack-plugin')
 module.exports = {
   entry: __dirname + "/src/firEye-probe.js", //已多次提及的唯一入口文件
   output: {
@@ -21,5 +22,14 @@ module.exports = {
         exclude: /node_modules/
       }
     ]
-  }
+  },
+  plugins: [
+    new DropConsoleWebpackPlugin({
+      drop_log: true,
+      drop_info: true,
+      drop_warn: false,
+      drop_error: false,
+      exclude: ['manifest'],
+    }),
+  ]
 }

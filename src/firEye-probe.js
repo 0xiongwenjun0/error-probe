@@ -189,9 +189,9 @@ class explorer {
         }
         if (this.config.custom) {
             this._window.fireLog = {
-                error: this._ThrowError,
-                warn: this._ThrowWarn,
-                info: this._ThrowInfo
+                error: this._ThrowError(this),
+                warn: this._ThrowWarn(this),
+                info: this._ThrowInfo(this)
             }
         }
         var selfTemp = this
@@ -237,7 +237,6 @@ class explorer {
                 config.sendError({
                     title: url || _window.location.href,
                     msg: JSON.stringify({
-                        // info: msg,
                         line: line,
                         col: col
                     }),
@@ -303,7 +302,7 @@ class explorer {
                 .then(res => {
                     if (!res.ok) { // True if status is HTTP 2xx
                         if (res.url === config.submitUrl) {
-                            // console.log('提交错误报错，请检查后台firEye-server是否运行正常');
+                            console.error('提交错误报错，请检查后台firEye-server是否运行正常');
                         } else {
                             config.sendError({
                                 title: _window.location.href,
@@ -318,7 +317,7 @@ class explorer {
                 })
                 .catch(error => {
                     if (arguments[0] === config.submitUrl)
-                        console.log("提交错误报错，请检查后台firEye-server是否运行正常")
+                        console.error("提交错误报错，请检查后台firEye-server是否运行正常")
                     else {
                         error.url = arguments[0]
                         config.sendError({
@@ -371,7 +370,7 @@ class explorer {
                     })
                 }
                 else if (event.target.responseURL === config.submitUrl) {
-                    console.log('提交错误报错，请检查后台firEye-server是否运行正常');
+                    console.error('提交错误报错，请检查后台firEye-server是否运行正常');
                 } else {
                     config.sendError({
                         title: _window.location.href,
@@ -517,49 +516,55 @@ class explorer {
     }
 
     //自定义抛出错误
-    _ThrowError = (errInfo, addition) => {
-        let error = {
-            level: "error",
-            msg: JSON.stringify(errInfo),
-            extends: {}
-        }
-        if (addition) {
-            let ex = this._getExtend(addition)
-            for (let key in ex) {
-                error.extends[key] = ex[key]
+    _ThrowError(self) {
+        return function (errInfo, addition) {
+            let error = {
+                level: "error",
+                msg: JSON.stringify(errInfo),
+                extends: {}
             }
+            if (addition) {
+                let ex = this._getExtend(addition)
+                for (let key in ex) {
+                    error.extends[key] = ex[key]
+                }
+            }
+            self.config.sendLog(error)
         }
-        this.config.sendLog(error)
     }
     //自定义抛出警告
-    _ThrowWarn = (warnInfo, addition) => {
-        let warn = {
-            level: "warning",
-            msg: JSON.stringify(warnInfo),
-            extends: {}
-        }
-        if (addition) {
-            let ex = this._getExtend(addition)
-            for (let key in ex) {
-                warn.extends[key] = ex[key]
+    _ThrowWarn(self) {
+        return function (warnInfo, addition) {
+            let warn = {
+                level: "warning",
+                msg: JSON.stringify(warnInfo),
+                extends: {}
             }
+            if (addition) {
+                let ex = this._getExtend(addition)
+                for (let key in ex) {
+                    warn.extends[key] = ex[key]
+                }
+            }
+            self.config.sendLog(warn)
         }
-        this.config.sendLog(warn)
     }
     //自定义抛出普通日志信息
-    _ThrowInfo = (info, addition) => {
-        let information = {
-            level: "info",
-            msg: JSON.stringify(info),
-            extends: {}
-        }
-        if (addition) {
-            let ex = this._getExtend(addition)
-            for (let key in ex) {
-                information.extends[key] = ex[key]
+    _ThrowInfo(self) {
+        return function (info, addition) {
+            let information = {
+                level: "info",
+                msg: JSON.stringify(info),
+                extends: {}
             }
+            if (addition) {
+                let ex = this._getExtend(addition)
+                for (let key in ex) {
+                    information.extends[key] = ex[key]
+                }
+            }
+            self.config.sendLog(information)
         }
-        this.config.sendLog(information)
     }
 
     _getBrowser() {

@@ -72,7 +72,6 @@ class explorer {
                     warn.extends = Object.assign(warn.extends, result)
                 }
                 this.warnList.push(warn)
-                // console.log(this.warnList)
                 //判断是否到达上传的长度
                 if (this.warnList.length < this.config.uploadWarnLength) {
                     return
@@ -116,6 +115,7 @@ class explorer {
         }
         catch (e) { }
     }
+    
     _getExtend(extend) {
         if (this.isFunction(extend)) {
             let result = extend()

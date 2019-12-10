@@ -8,7 +8,7 @@ class explorer {
             resourceError: true,
             ajaxError: true,
             consoleError: false, // console.error默认不处理
-            scriptError: false, // 跨域js错误，默认不处理，因为没有任何信息
+            scriptError: true, // 跨域js错误，默认不处理，因为没有任何信息
             vue: true,
             autoReport: true,
             custom: true,//自定义抛出
@@ -222,6 +222,7 @@ class explorer {
     _handleWindowError(_window, config) {
         let _oldWindowError = _window.onerror;
         _window.onerror = function (msg, url, line, col, error) {
+            console.log("报错", msg, error)
             if (error && error.stack) {
                 config.sendError({
                     title: url || _window.location.href,
@@ -255,10 +256,15 @@ class explorer {
     _handleRejectPromise(_window, config) {
         _window.addEventListener('unhandledrejection', function (event) {
             if (event) {
-                let reason = event.reason;
+                let reason = event.reason.stack
+                let lineOne = reason.match(/\((\S*)\)/)[1];
+                let arr = lineOne.split(":")
+                let length = arr.length;
                 config.sendError({
                     title: _window.location.href,
-                    msg: JSON.stringify(reason),
+                    msg: JSON.stringify(event.reason.stack),
+                    line: arr[length - 2],
+                    col: arr[length - 1],
                     category: 'js',
                     level: 'error',
                     extends: {}
@@ -313,7 +319,8 @@ class explorer {
                 .catch(error => {
                     if (arguments[0] === config.submitUrl)
                         console.log("提交错误报错，请检查后台firEye-server是否运行正常")
-                    else
+                    else {
+                        error.url = arguments[0]
                         config.sendError({
                             title: _window.location.href,
                             msg: JSON.stringify(error),
@@ -321,6 +328,7 @@ class explorer {
                             level: 'error',
                             extends: {}
                         });
+                    }
                     throw error;
                 })
         }
@@ -337,14 +345,33 @@ class explorer {
         if (!_window.XMLHttpRequest) {
             return;
         }
+
+        let currentType = null, currentUrl = null;
+
         let xmlhttp = _window.XMLHttpRequest;
+
+        let _oldOpen = xmlhttp.prototype.open;
 
         let _oldSend = xmlhttp.prototype.send;
 
         let _handleEvent = function (event) {
-            if (event && event.currentTarget && event.currentTarget.status !== 200) {
-                if (event.target.responseURL === config.submitUrl) {
-                    // console.log('提交错误报错，请检查后台firEye-server是否运行正常');
+            console.log(event)
+            if (event && event.currentTarget && (event.currentTarget.status < 200 || event.currentTarget >= 400)) {
+                if (event.currentTarget.status === 0) {
+                    config.sendError({
+                        title: _window.location.href,
+                        msg: JSON.stringify({
+                            msg: "ajax请求未成功",
+                            type: currentType,
+                            url: currentUrl
+                        }),
+                        category: 'ajax',
+                        level: 'error',
+                        extends: {}
+                    })
+                }
+                else if (event.target.responseURL === config.submitUrl) {
+                    console.log('提交错误报错，请检查后台firEye-server是否运行正常');
                 } else {
                     config.sendError({
                         title: _window.location.href,
@@ -352,25 +379,30 @@ class explorer {
                             response: event.target.response,
                             responseURL: event.target.responseURL,
                             status: event.target.status,
-                            statusText: event.target.statusText
+                            statusText: event.target.statusText,
+                            type: currentType
                         }),
                         category: 'ajax',
                         level: 'error',
                         extends: {}
                     });
                 }
-
             }
         };
+
+        xmlhttp.prototype.open = function (type, url) {
+            currentType = type;
+            currentUrl = url;
+            _oldOpen.apply(this, arguments)
+        }
 
         xmlhttp.prototype.send = function () {
             if (this['addEventListener']) {
                 this['addEventListener']('error', _handleEvent);
-                this['addEventListener']('load', _handleEvent);
-                this['addEventListener']('abort', _handleEvent);
             } else {
                 var _oldStateChange = this['onreadystatechange'];
                 this['onreadystatechange'] = function (event) {
+                    console.log("ajax状态码", this.readyState)
                     if (this.readyState === 4) {
                         _handleEvent(event);
                     }
@@ -388,7 +420,7 @@ class explorer {
         _window.console.error = function () {
             config.sendError({
                 title: _window.location.href,
-                msg: JSON.stringify(Array.prototype.join.call(arguments, ',')),
+                msg: Array.prototype.join.call(arguments, ','),
                 category: 'js',
                 level: 'error',
                 extends: {}
@@ -466,7 +498,7 @@ class explorer {
             metaData.message = msg.message;
             let lineOne = msg.stack.match(/\((\S*)\)/)[1];
             let arr = lineOne.split(":")
-            let length=arr.length;
+            let length = arr.length;
             config.sendWarn({
                 title: _window.location.href,
                 msg: JSON.stringify(msg.stack),
@@ -485,7 +517,7 @@ class explorer {
     }
 
     //自定义抛出错误
-    _ThrowError(errInfo, addition) {
+    _ThrowError = (errInfo, addition) => {
         let error = {
             level: "error",
             msg: JSON.stringify(errInfo),
@@ -500,7 +532,7 @@ class explorer {
         this.config.sendLog(error)
     }
     //自定义抛出警告
-    _ThrowWarn(warnInfo, addition) {
+    _ThrowWarn = (warnInfo, addition) => {
         let warn = {
             level: "warning",
             msg: JSON.stringify(warnInfo),
@@ -515,7 +547,7 @@ class explorer {
         this.config.sendLog(warn)
     }
     //自定义抛出普通日志信息
-    _ThrowInfo(info, addition) {
+    _ThrowInfo = (info, addition) => {
         let information = {
             level: "info",
             msg: JSON.stringify(info),

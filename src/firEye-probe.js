@@ -1,6 +1,6 @@
 
 import { record } from 'rrweb'
-class explorer {
+class firEye {
     constructor() {
         this.config = {
             submitUrl: "http://fireye.tdahai.com/api/errors",
@@ -115,7 +115,7 @@ class explorer {
         }
         catch (e) { }
     }
-    
+
     _getExtend(extend) {
         if (this.isFunction(extend)) {
             let result = extend()
@@ -159,7 +159,7 @@ class explorer {
 
         // 开始录制
         if (this.config.record) {
-            // console.log('=====开始录制错误======');
+            console.log('=====开始录制轨迹======');
             this._startRecord();
         }
 
@@ -256,14 +256,16 @@ class explorer {
         _window.addEventListener('unhandledrejection', function (event) {
             if (event) {
                 let reason = event.reason.stack
-                let lineOne = reason.match(/\((\S*)\)/)[1];
-                let arr = lineOne.split(":")
-                let length = arr.length;
+                if (reason) {
+                    var lineOne = reason.match(/\((\S*)\)/)[1];
+                    var arr = lineOne.split(":")
+                    var length = arr.length;
+                }
                 config.sendError({
                     title: _window.location.href,
                     msg: JSON.stringify(event.reason.stack),
-                    line: arr[length - 2],
-                    col: arr[length - 1],
+                    line: reason && arr[length - 2],
+                    col: reason && arr[length - 1],
                     category: 'js',
                     level: 'error',
                     extends: {}
@@ -319,7 +321,7 @@ class explorer {
                     if (arguments[0] === config.submitUrl)
                         console.error("提交错误报错，请检查后台firEye-server是否运行正常")
                     else {
-                        error.url = arguments[0]
+                        error.url = arguments[0];
                         config.sendError({
                             title: _window.location.href,
                             msg: JSON.stringify(error),
@@ -447,7 +449,7 @@ class explorer {
     _handleVueError(_window, config) {
         var vue = config.Vue || _window.Vue || _window.vue;
         if (!vue || !vue.config) {
-            // console.log("未找到Vue对象")
+            console.log("未找到Vue对象")
             return; // 没有找到vue实例
         }
         var _oldVueError = vue.config.errorHandler;
@@ -460,14 +462,16 @@ class explorer {
             console.error(error)
             metaData.stack = error.stack;
             metaData.message = error.message;
-            let lineOne = error.stack.match(/\((\S*)\)/)[1];
-            let arr = lineOne.split(":")
-            let length = arr.length;
+            if (error.stack) {
+                var lineOne = error.stack.match(/\((\S*)\)/)[1];
+                var arr = lineOne.split(":")
+                var length = arr.length;
+            }
             config.sendError({
                 title: _window.location.href,
                 msg: JSON.stringify(error.stack),
-                line: arr[length - 2],
-                col: arr[length - 1],
+                line: error.stack && arr[length - 2],
+                col: error.stack && arr[length - 1],
                 category: 'js',
                 level: 'error',
                 extends: {}
@@ -482,7 +486,7 @@ class explorer {
     _handleVueWarn(_window, config) {
         var vue = config.Vue || _window.Vue || _window.vue;
         if (!vue || !vue.config) {
-            // console.log("未找到Vue对象")
+            console.log("未找到Vue对象")
             return
         } // 没有找到vue实例
         var _oldVueWarn = vue.config.warnHandler
@@ -495,14 +499,16 @@ class explorer {
             console.warn(msg)
             metaData.stack = msg.stack;
             metaData.message = msg.message;
-            let lineOne = msg.stack.match(/\((\S*)\)/)[1];
-            let arr = lineOne.split(":")
-            let length = arr.length;
+            if (msg) {
+                var lineOne = msg.match(/\((\S*)\)/)[1];
+                var arr = lineOne.split(":")
+                var length = arr.length;
+            }
             config.sendWarn({
                 title: _window.location.href,
-                msg: JSON.stringify(msg.stack),
-                line: arr[length - 2],
-                col: arr[length - 1],
+                msg: JSON.stringify(msg),
+                line: msg && arr[length - 2],
+                col: msg && arr[length - 1],
                 category: 'js',
                 level: 'warning',
                 extends: {}
@@ -620,4 +626,4 @@ class explorer {
         }
     }
 }
-export default new explorer();
+export default new firEye();

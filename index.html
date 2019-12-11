@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
+    <script src="http://mod-dev.xes1v1.com/firEye-probe.js"></script>
 </head>
 
 <body>
@@ -39,7 +40,6 @@
                 <button class="button"></button>
             </div>
         </div>
-        <script src="./index.js"></script>
         <script>
             let img = document.querySelector("Img")
             function imgError() {
@@ -62,7 +62,6 @@
                 throw new Error("抛出错误");
             }
             function throwWarn() {
-                throw new Warn("抛出警告");
             }
             function createFetch() {
                 fetch("http://www.baidu.com", {

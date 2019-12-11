@@ -358,17 +358,17 @@ class firEye {
             console.log(event)
             if (event && event.currentTarget && (event.currentTarget.status < 200 || event.currentTarget >= 400)) {
                 if (event.currentTarget.status === 0) {
-                    config.sendError({
-                        title: _window.location.href,
-                        msg: JSON.stringify({
-                            msg: "ajax请求未成功",
-                            type: currentType,
-                            url: currentUrl
-                        }),
-                        category: 'ajax',
-                        level: 'error',
-                        extends: {}
-                    })
+                    // config.sendError({
+                    //     title: _window.location.href,
+                    //     msg: JSON.stringify({
+                    //         msg: "ajax请求未成功",
+                    //         type: currentType,
+                    //         url: currentUrl
+                    //     }),
+                    //     category: 'ajax',
+                    //     level: 'error',
+                    //     extends: {}
+                    // })
                 }
                 else if (event.target.responseURL === config.submitUrl) {
                     console.error('提交错误报错，请检查后台firEye-server是否运行正常');

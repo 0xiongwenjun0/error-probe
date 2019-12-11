@@ -498,16 +498,9 @@ class firEye {
             console.warn(msg)
             metaData.stack = msg.stack;
             metaData.message = msg.message;
-            if (msg) {
-                var lineOne = msg.match(/\((\S*)\)/)[1];
-                var arr = lineOne.split(":")
-                var length = arr.length;
-            }
             config.sendWarn({
                 title: _window.location.href,
                 msg: JSON.stringify(msg),
-                line: msg && arr[length - 2],
-                col: msg && arr[length - 1],
                 category: 'js',
                 level: 'warning',
                 extends: {}

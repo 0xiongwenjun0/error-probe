@@ -105,7 +105,7 @@ class firEye {
                 .then(res => {
                     if (isArr) {
                         selfTemp.warnList = []
-                        // console.log("上传成功，清除警告数组")
+                        // // console.log("上传成功，清除警告数组")
                     }
                 })
                 .catch(error => {
@@ -158,7 +158,7 @@ class firEye {
 
         // 开始录制
         if (this.config.record) {
-            console.log('=====开始录制轨迹======');
+            // console.log('=====开始录制轨迹======');
             this._startRecord();
         }
 
@@ -221,7 +221,7 @@ class firEye {
     _handleWindowError(_window, config) {
         let _oldWindowError = _window.onerror;
         _window.onerror = function (msg, url, line, col, error) {
-            console.log("报错", msg, error)
+            // console.log("报错", msg, error)
             if (error && error.stack) {
                 config.sendError({
                     title: url || _window.location.href,
@@ -355,7 +355,7 @@ class firEye {
         let _oldSend = xmlhttp.prototype.send;
 
         let _handleEvent = function (event) {
-            console.log(event)
+            // console.log(event)
             if (event && event.currentTarget && (event.currentTarget.status < 200 || event.currentTarget >= 400)) {
                 if (event.currentTarget.status === 0) {
                     // config.sendError({
@@ -402,7 +402,7 @@ class firEye {
             } else {
                 var _oldStateChange = this['onreadystatechange'];
                 this['onreadystatechange'] = function (event) {
-                    console.log("ajax状态码", this.readyState)
+                    // console.log("ajax状态码", this.readyState)
                     if (this.readyState === 4) {
                         _handleEvent(event);
                     }
@@ -448,7 +448,7 @@ class firEye {
     _handleVueError(_window, config) {
         var vue = config.Vue || _window.Vue || _window.vue;
         if (!vue || !vue.config) {
-            console.log("未找到Vue对象")
+            // console.log("未找到Vue对象")
             return; // 没有找到vue实例
         }
         var _oldVueError = vue.config.errorHandler;
@@ -485,7 +485,7 @@ class firEye {
     _handleVueWarn(_window, config) {
         var vue = config.Vue || _window.Vue || _window.vue;
         if (!vue || !vue.config) {
-            console.log("未找到Vue对象")
+            // console.log("未找到Vue对象")
             return
         } // 没有找到vue实例
         var _oldVueWarn = vue.config.warnHandler

@@ -1,4 +1,4 @@
-import { _window, defaultInfo, warnList, FailErrorList,resetWarnList } from "../redux"
+import { _window, defaultInfo, warnList, FailErrorList, resetWarnList } from "../redux"
 import { _getExtend } from "../util"
 const config = {
     submitUrl: "http://fireye.tdahai.com/api/errors",
@@ -21,6 +21,7 @@ const config = {
 
 config.sendError = (error) => {
     /*如果需要录制功能*/
+    error.level = "error"
     if (error.category === 'js' && _window.recordEvent) {
         if (_window.recordEvent.lenght >= 30) {
             error.records = _window.recordEvent;
@@ -42,6 +43,7 @@ config.sendError = (error) => {
     _sendToServer(error)
 }
 config.sendWarn = (warn, send) => {
+    warn.level = "warning"
     if (!send) {
         //添加默认数据
         for (let i in defaultInfo) {
@@ -70,6 +72,17 @@ config.sendWarn = (warn, send) => {
 config.sendLog = (info) => {
     info.title = _window.location.href;
     info.category = "log";
+    //添加默认数据
+    for (let i in defaultInfo) {
+        info[i] = defaultInfo[i];
+    }
+    //添加自定义数据
+    if (config.extends) {
+        if (!info.extends)
+            info.extends = {}
+        let result = _getExtend(config.extends)
+        info.extends = Object.assign(info.extends, result)
+    }
     _sendToServer(info)
 }
 

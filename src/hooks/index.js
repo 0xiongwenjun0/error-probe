@@ -6,7 +6,6 @@ function _handleWindowError(_window, config) {
             title: url || _window.location.href,
             msg: JSON.stringify(error.stack),
             category: 'js',
-            level: 'error',
             line: line,
             col: col,
             extends: {}
@@ -40,7 +39,6 @@ function _handleRejectPromise(_window, config) {
                 line: reason && arr[length - 2],
                 col: reason && arr[length - 1],
                 category: 'js',
-                level: 'error',
                 extends: {}
             });
         }
@@ -61,7 +59,6 @@ function _handleResourceError(_window, config) {
                     url: url,
                 }),
                 category: 'resource',
-                level: 'error',
                 extends: {}
             });
         }
@@ -76,7 +73,6 @@ function _handleFetchError(_window, config) {
         let info = {
             title: _window.location.href,
             category: 'ajax',
-            level: 'error',
             extends: {}
         }
         return _oldFetch.apply(this, arguments)
@@ -139,7 +135,6 @@ function _handleAjaxError(_window, config) {
                         type: currentType
                     }),
                     category: 'ajax',
-                    level: 'error',
                     extends: {}
                 });
             }
@@ -178,7 +173,7 @@ function _handleConsoleError(_window, config) {
             title: _window.location.href,
             msg: Array.prototype.join.call(arguments, ','),
             category: 'js',
-            level: 'error',
+
             extends: {}
         });
         _oldConsoleError && _oldConsoleError.apply(_window, arguments);
@@ -194,7 +189,6 @@ function _handleConsoleWarnning(_window, config) {
             title: _window.location.href,
             msg: JSON.stringify(Array.prototype.join.call(arguments, ',')),
             category: 'js',
-            level: 'warning',
             extends: {}
         });
         _oldConsoleWarn && _oldConsoleWarn.apply(_window, arguments);
@@ -228,7 +222,7 @@ function _handleVueError(_window, config) {
             line: error.stack && arr[length - 2],
             col: error.stack && arr[length - 1],
             category: 'js',
-            level: 'error',
+
             extends: {}
         });
 
@@ -258,7 +252,6 @@ function _handleVueWarn(_window, config) {
             title: _window.location.href,
             msg: JSON.stringify(msg),
             category: 'js',
-            level: 'warning',
             extends: {}
         });
 
@@ -321,7 +314,7 @@ function _ThrowInfo(config) {
     }
 }
 
-export  {
+export {
     _handleWindowError,
     _handleRejectPromise,
     _handleResourceError,

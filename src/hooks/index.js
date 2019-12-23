@@ -111,11 +111,11 @@ function _handleAjaxError(_window, config) {
 
     let currentType = null, currentUrl = null;
 
-    let xmlhttp = _window.XMLHttpRequest;
+    let XMLHttpRequest = _window.XMLHttpRequest;
 
-    let _oldOpen = xmlhttp.prototype.open;
+    let _oldOpen = XMLHttpRequest.prototype.open;
 
-    let _oldSend = xmlhttp.prototype.send;
+    let _oldSend = XMLHttpRequest.prototype.send;
 
     let _handleEvent = function (event) {
         // console.log(event)
@@ -141,19 +141,18 @@ function _handleAjaxError(_window, config) {
         }
     };
 
-    xmlhttp.prototype.open = function (type, url) {
+    XMLHttpRequest.prototype.open = function (type, url) {
         currentType = type;
         currentUrl = url;
         _oldOpen.apply(this, arguments)
     }
 
-    xmlhttp.prototype.send = function () {
+    XMLHttpRequest.prototype.send = function () {
         if (this['addEventListener']) {
             this['addEventListener']('error', _handleEvent);
         } else {
             var _oldStateChange = this['onreadystatechange'];
             this['onreadystatechange'] = function (event) {
-                // console.log("ajax状态码", this.readyState)
                 if (this.readyState === 4) {
                     _handleEvent(event);
                 }

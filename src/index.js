@@ -13,7 +13,7 @@ import {
     _ThrowWarn,
     _ThrowInfo,
 } from "./hooks"
-// import  _startRecord  from "./record"
+import  _startRecord  from "./record"
 
 import { _window } from "./redux"
 
@@ -34,7 +34,7 @@ function start(options, extend) {
     // 开始录制
     if (config.record) {
         // console.log('=====开始录制轨迹======');
-        import("./record").then(res=>res.default())
+        _startRecord()
     }
 
     // 处理过滤器

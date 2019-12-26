@@ -6,6 +6,7 @@ function _handleWindowError(_window, config) {
             title: url || _window.location.href,
             msg: JSON.stringify(error.stack),
             category: 'js',
+            level: "error",
             line: line,
             col: col,
             extends: {}
@@ -29,27 +30,28 @@ function _handleRejectPromise(_window, config) {
         if (event) {
             let reason = event.reason.stack
             if (reason) {
-                var lineOne = reason.match(/\((\S*)\)/)[1];
-                var arr = lineOne.split(":")
-                var length = arr.length;
+                var line = reason.match(/\((\S*)\)/);
+                var lineOne = line && line[1]
+                var arr = lineOne && lineOne.split(":")
+                var length = arr && arr.length;
             }
             config.sendError({
                 title: _window.location.href,
                 msg: JSON.stringify(event.reason.stack),
-                line: reason && arr[length - 2],
-                col: reason && arr[length - 1],
+                line: arr && arr[length - 2],
+                col: arr && arr[length - 1],
                 category: 'js',
+                level: "error",
                 extends: {}
             });
         }
     }, true);
 };
 
-
 function _handleVueError(_window, config) {
     var vue = config.Vue || config.vue || _window.Vue || _window.vue;
     if (!vue || !vue.config) {
-        // console.log("未找到Vue对象")
+        // console.log("未找到Vue对象") 
         return; // 没有找到vue实例
     }
     var _oldVueError = vue.config.errorHandler;
@@ -73,7 +75,7 @@ function _handleVueError(_window, config) {
             line: error.stack && arr[length - 2],
             col: error.stack && arr[length - 1],
             category: 'js',
-
+            level: "error",
             extends: {}
         });
 
@@ -103,6 +105,7 @@ function _handleVueWarn(_window, config) {
             title: _window.location.href,
             msg: JSON.stringify(msg),
             category: 'js',
+            level: "warning",
             extends: {}
         });
 

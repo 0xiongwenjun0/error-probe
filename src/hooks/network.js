@@ -6,6 +6,7 @@ function _handleFetchError(_window, config) {
         let info = {
             title: _window.location.href,
             category: 'ajax',
+            level:"error",
             extends: {}
         }
         return _oldFetch.apply(this, arguments)
@@ -68,6 +69,7 @@ function _handleAjaxError(_window, config) {
                         type: currentType
                     }),
                     category: 'ajax',
+                    level:"error",
                     extends: {}
                 });
             }

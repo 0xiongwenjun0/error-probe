@@ -18,7 +18,6 @@ import  _startRecord  from "./record"
 import { _window } from "./redux"
 
 
-
 function start(options, extend) {
     if (options) {
         if (extend) {
@@ -26,19 +25,15 @@ function start(options, extend) {
         }
         setConfig(options)
     }
-
     if (!config.scriptError) {
         config.filters.push(function () { return /^Script error\.?$/.test(arguments[0]); })
     }
-
     // 开始录制
     if (config.record) {
         // console.log('=====开始录制轨迹======');
         _startRecord()
     }
-
     // 处理过滤器
-
     if (config.jsError) {
         _handleWindowError(_window, config);
     }

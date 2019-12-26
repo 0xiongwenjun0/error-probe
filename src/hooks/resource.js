@@ -12,6 +12,7 @@ function _handleResourceError(_window, config) {
                     url: url,
                 }),
                 category: 'resource',
+                level:"error",
                 extends: {}
             });
         }

@@ -7,7 +7,7 @@ function _handleConsoleError(_window, config) {
             title: _window.location.href,
             msg: Array.prototype.join.call(arguments, ','),
             category: 'js',
-
+            level:"error",
             extends: {}
         });
         _oldConsoleError && _oldConsoleError.apply(_window, arguments);
@@ -23,6 +23,7 @@ function _handleConsoleWarnning(_window, config) {
             title: _window.location.href,
             msg: JSON.stringify(Array.prototype.join.call(arguments, ',')),
             category: 'js',
+            level:"warning",
             extends: {}
         });
         _oldConsoleWarn && _oldConsoleWarn.apply(_window, arguments);

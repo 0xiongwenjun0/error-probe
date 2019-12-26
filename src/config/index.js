@@ -21,7 +21,6 @@ const config = {
 
 config.sendError = (error) => {
     /*如果需要录制功能*/
-    error.level = "error"
     if (error.category === 'js' && _window.recordEvent) {
         if (_window.recordEvent.lenght >= 30) {
             error.records = _window.recordEvent;
@@ -43,7 +42,6 @@ config.sendError = (error) => {
     _sendToServer(error)
 }
 config.sendWarn = (warn, send) => {
-    warn.level = "warning"
     if (!send) {
         //添加默认数据
         for (let i in defaultInfo) {

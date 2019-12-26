@@ -18,7 +18,11 @@ module.exports = {
         use: {
           loader: "babel-loader",
           options: {
-            presets: ["env"]
+            presets: ["env"],
+            babelrc: false,// 不采用.babelrc的配置
+            plugins: [
+                "dynamic-import-webpack"
+            ]
           }
         },
         exclude: /node_modules/

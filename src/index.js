@@ -13,6 +13,7 @@ import {
     _ThrowWarn,
     _ThrowInfo,
 } from "./hooks"
+import { usePrivate, usePublic, clearPrivate } from "./middleware"
 
 import { _window } from "./redux"
 
@@ -69,4 +70,4 @@ function start(options, extend) {
         })
 }
 
-export default start
+export { start, usePrivate, usePublic, clearPrivate }

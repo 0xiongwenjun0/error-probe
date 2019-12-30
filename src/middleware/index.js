@@ -1,12 +1,12 @@
-const beforeConduct = []
+let publicMiddle = []
 
-const beforeSubmit = []
+let privateMddile = []
 
 function execute(info, type) {
     var arr = null
     switch (type) {
-        case "conduct": arr = beforeConduct; break;
-        case "submit": arr = beforeSubmit; break;
+        case "publicMiddle": arr = publicMiddle; break;
+        case "privateMddile": arr = privateMddile; break;
         default: arr = [];
     }
     try {
@@ -23,32 +23,39 @@ function execute(info, type) {
     }
 }
 
-function executeConduct(info) {
-    execute(info, "conduct")
+function executePublic(info) {
+    execute(info, "publicMiddle")
 }
 
-function executeSubmit(info) {
-    execute(info, "submit")
+function executePrivate(info) {
+    execute(info, "privateMddile")
 }
 
 function use(func, type) {
     switch (type) {
-        case "conduct": beforeConduct.push(func); break;
-        case "submit": beforeSubmit.push(func); break;
+        case "publicMiddle": publicMiddle.push(func); break;
+        case "privateMddile": privateMddile.push(func); break;
         default: ;
     }
 }
 
-function useBeforeConduct(func) {
+function usePublic(func) {
     if (typeof func === "function") {
-        use(func, "conduct")
+        use(func, "publicMiddle")
     }
 }
 
-function useBeforeSubmit(func) {
+function usePrivate(func, window) {
     if (typeof func === "function") {
-        use(func, "submit")
+        use(func, "privateMddile")
     }
+    if (window && window.addEventListener)
+        window.addEventListener("hashchange", clearPrivate)
 }
 
-export { executeSubmit, executeConduct, useBeforeConduct, useBeforeSubmit }
+
+function clearPrivate() {
+    privateMddile = [];
+}
+
+export { executePrivate, executePublic, usePublic, usePrivate, clearPrivate }

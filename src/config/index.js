@@ -1,6 +1,6 @@
 import { _window, defaultInfo, warnList, FailErrorList, resetWarnList } from "../redux"
 import { _getExtend } from "../util"
-import { executeConduct, executeSubmit } from "../middleware"
+import { executePublic, executePrivate } from "../middleware"
 const config = {
     submitUrl: "http://fireye.tdahai.com/api/errors",
     jsError: true,
@@ -22,7 +22,6 @@ const config = {
 };
 
 config.sendError = (error) => {
-    executeConduct(error)
     /*如果需要录制功能*/
     if (error.category === 'js' && _window.recordEvent) {
         if (_window.recordEvent.lenght >= 30) {
@@ -42,7 +41,8 @@ config.sendError = (error) => {
         let result = _getExtend(config.extends)
         error.extends = Object.assign(error.extends, result)
     }
-    executeSubmit(error)
+    executePublic(error)
+    executePrivate(error)
     _sendToServer(error)
 }
 config.sendWarn = (warn, send) => {

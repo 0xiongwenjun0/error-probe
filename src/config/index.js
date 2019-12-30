@@ -1,5 +1,6 @@
 import { _window, defaultInfo, warnList, FailErrorList, resetWarnList } from "../redux"
 import { _getExtend } from "../util"
+import { executeConduct, executeSubmit } from "../middleware"
 const config = {
     submitUrl: "http://fireye.tdahai.com/api/errors",
     jsError: true,
@@ -8,18 +9,20 @@ const config = {
     consoleError: false, // console.error默认不处理
     scriptError: true, // 跨域js错误，默认不处理，因为没有任何信息
     autoReport: true,
+    Vue: null,
     custom: true,//自定义抛出
     closeWarn: false,//是否停止监听Warn
     filters: [], // 过滤器，命中的不上报
     levels: ['info', 'warning', 'error'],
     category: ['js', 'resource', 'ajax', 'log'],
-    record: false,//是否录制
+    record: false,//是否录制F
     uploadWarnLength: 30,//默认上传的最低长度
     appId: "",
     appScrect: ""
 };
 
 config.sendError = (error) => {
+    executeConduct(error)
     /*如果需要录制功能*/
     if (error.category === 'js' && _window.recordEvent) {
         if (_window.recordEvent.lenght >= 30) {
@@ -39,6 +42,7 @@ config.sendError = (error) => {
         let result = _getExtend(config.extends)
         error.extends = Object.assign(error.extends, result)
     }
+    executeSubmit(error)
     _sendToServer(error)
 }
 config.sendWarn = (warn, send) => {
@@ -70,17 +74,6 @@ config.sendWarn = (warn, send) => {
 config.sendLog = (info) => {
     info.title = _window.location.href;
     info.category = "log";
-    //添加默认数据
-    for (let i in defaultInfo) {
-        info[i] = defaultInfo[i];
-    }
-    //添加自定义数据
-    if (config.extends) {
-        if (!info.extends)
-            info.extends = {}
-        let result = _getExtend(config.extends)
-        info.extends = Object.assign(info.extends, result)
-    }
     _sendToServer(info)
 }
 

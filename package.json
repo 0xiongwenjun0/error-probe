@@ -1,6 +1,6 @@
 {
-  "name": "firEye-probe",
-  "version": "1.0.6",
+  "name": "js-error-probe",
+  "version": "1.0.1",
   "description": "前端错误探针",
   "main": "./src/index.js",
   "scripts": {

@@ -65,15 +65,16 @@ function _handleVueError(_window, config) {
         metaData.stack = error.stack;
         metaData.message = error.message;
         if (error.stack) {
-            var lineOne = error.stack.match(/\((\S*)\)/)[1];
-            var arr = lineOne.split(":")
-            var length = arr.length;
+            var lines=error.stack.match(/\((\S*)\)/)
+            var lineOne = lines&&lines[1];
+            var arr = lineOne&&lineOne.split(":")
+            var length = arr&&arr.length;
         }
         config.sendError({
             title: _window.location.href,
             msg: JSON.stringify(error.stack),
-            line: error.stack && arr[length - 2],
-            col: error.stack && arr[length - 1],
+            line: arr && arr[length - 2],
+            col: arr && arr[length - 1],
             category: 'js',
             level: "error",
             extends: {}

@@ -12,7 +12,10 @@ function execute(info, type) {
     try {
         dispatch(0)()
     } catch (e) {
-
+        console.error(e)
+        if (window.fireLog) {
+            window.fireLog.error(e.stack)
+        }
     }
     function dispatch(i) {
         return () => {

@@ -17,7 +17,6 @@ import { usePrivate, usePublic, clearPrivate } from "./middleware"
 
 import { _window } from "./redux"
 
-
 function start(options, extend) {
     if (options) {
         if (extend) {

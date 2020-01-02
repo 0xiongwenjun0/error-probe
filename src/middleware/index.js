@@ -56,7 +56,6 @@ function usePrivate(func, window) {
         window.addEventListener("hashchange", clearPrivate)
 }
 
-
 function clearPrivate() {
     privateMddile = [];
 }

@@ -1,4 +1,5 @@
 import { config, setConfig } from "./config"
+
 import {
     _handleWindowError,
     _handleRejectPromise,
@@ -13,6 +14,7 @@ import {
     _ThrowWarn,
     _ThrowInfo,
 } from "./hooks"
+
 import { usePrivate, usePublic, clearPrivate } from "./middleware"
 
 import { _window } from "./redux"

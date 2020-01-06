@@ -57,6 +57,14 @@ function usePrivate(func, window) {
 }
 
 function clearPrivate() {
+    if (typeof name === "string") {
+        privateMddile = privateMddile.filter(item => item.name !== name)
+        return;
+    }
+    if (name instanceof Array) {
+        privateMddile = privateMddile.filter(item => name.findIndex(item) < 0)
+        return;
+    }
     privateMddile = [];
 }
 

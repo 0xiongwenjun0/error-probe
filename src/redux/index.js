@@ -1,4 +1,4 @@
- const _window = typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof this !== 'undefined' ? this : {};
+const _window = typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof this !== 'undefined' ? this : {};
 const addEventListener = _window.addEventListener || _window.attachEvent;
 let warnList = [];
 const FailErrorList = []
@@ -11,8 +11,16 @@ const defaultInfo = {
     memory: _window.navigator.deviceMemory,//获取用户的最大内存 G
 }//默认错误信息上报
 
-function resetWarnList (){
-    warnList=[]
+function resetWarnList() {
+    warnList = []
+}
+
+function pushFailErrorList(info){
+    if(Array.isArray(info)){
+        FailErrorList.push(...info)
+    }else{
+        pushFailErrorList.push(info)
+    }
 }
 
 //获取浏览器信息
@@ -75,5 +83,6 @@ export {
     warnList,
     resetWarnList,
     FailErrorList,
-    defaultInfo
+    defaultInfo,
+    pushFailErrorList
 }

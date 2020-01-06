@@ -4,7 +4,6 @@ function _handleWindowError(_window, config) {
     _window.onerror = function (msg, url, line, col, error) {
         let info = {
             title: url || _window.location.href,
-            msg: JSON.stringify(error.stack),
             category: 'js',
             level: "error",
             line: line,
@@ -15,7 +14,7 @@ function _handleWindowError(_window, config) {
             info.msg = JSON.stringify(error.stack)
             config.sendError(info);
         } else if (typeof msg === 'string') {
-            info.msg = JSON.stringify(msg);
+            info.msg = JSON.stringify({msg,line,col});
             config.sendError(info);
         }
         if (_oldWindowError && isFunction(_oldWindowError)) {

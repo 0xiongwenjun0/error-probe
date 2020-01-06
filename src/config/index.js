@@ -1,5 +1,5 @@
-import { _window, defaultInfo, warnList, FailErrorList, resetWarnList } from "../redux"
-import { _getExtend } from "../util"
+import { _window, defaultInfo, warnList, FailErrorList } from "../redux"
+import { _getExtend, _sendToServer } from "../util"
 import { executePublic, executePrivate } from "../middleware"
 const config = {
     submitUrl: "http://fireye.tdahai.com/api/errors",
@@ -82,32 +82,6 @@ function setConfig(change) {
         config[key] = change[key];
     }
 }
-
-function _sendToServer(info) {
-    try {
-        let isArr = info instanceof Array
-        fetch(config.submitUrl, {
-            method: "POST",
-            headers: {
-                'Content-Type': 'application/json',
-                appId: config.appId,
-                appScrect: config.appScrect,
-            },
-            body: JSON.stringify(info),
-        })
-            .then(res => {
-                if (isArr) {
-                    resetWarnList()
-                }
-            })
-            .catch(error => {
-                if (!isArr)
-                    FailErrorList.push(info)
-            });
-    }
-    catch (e) { }
-}
-
 
 export {
     setConfig,

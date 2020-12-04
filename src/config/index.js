@@ -2,7 +2,7 @@ import { _window, defaultInfo, warnList, FailErrorList } from "../redux"
 import { _getExtend, _sendToServer } from "../util"
 import { executePublic, executePrivate } from "../middleware"
 const config = {
-    submitUrl: "http://fireye.tdahai.com/api/errors",
+    submitUrl: url,
     jsError: true,
     resourceError: true,
     ajaxError: true,
